@@ -245,7 +245,6 @@ class Mira {
   constructor() {
     this.angle = 0; // Inicialmente, el ángulo es 0 grados
     this.direction = PI / 1.5;
-    this.pos = createVector(x, y); // Posición personalizada
   }
 
   update() {
