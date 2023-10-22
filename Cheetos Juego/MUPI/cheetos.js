@@ -36,6 +36,7 @@ function setup() {
 
   // Cambia el tamaño de la imagen al tamaño deseado
   img.resize(tamanoImagen, tamanoImagen);
+  tiempoInicio = millis(); // Guarda el tiempo de inicio
 
   // PHONE
   bolita = new Bolita(width / 2, height / 2);
@@ -66,6 +67,12 @@ function draw() {
     textSize(70); // Tamaño del texto del aviso
     fill(255, 0, 0); // Color del texto del aviso (rojo)
     text("Try again!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
+  }
+
+  let tiempoActual = millis();
+  if (tiempoActual - lastSpeedIncrease >= 10000 && velocidadX < 16) {
+    lastSpeedIncrease = tiempoActual; // Actualiza el registro del tiempo
+    aumentarVelocidad(); // Llama a la función para aumentar la velocidad
   }
 
   // Llama a la función update()
@@ -132,8 +139,12 @@ function verificarColision() {
     bolita.pos = createVector(width / 2, height / 2);
     bolita.vel = createVector(0, 0);
     bolita.disparada = false;
-    }
   }
+}
+
+function aumentarVelocidad() {
+  velocidadX += 4; // Aumenta la velocidad en 5 unidades cada 10 segundos
+}
 
 function setLineDash(list) {
   drawingContext.setLineDash(list);
