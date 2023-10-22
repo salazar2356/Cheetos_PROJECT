@@ -5,6 +5,9 @@ let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegund
 let tamanoImagen = 300; // Tamaño de la imagen en píxeles (ancho y alto)
 let direccion = 1; // Dirección del movimiento (1 para derecha, -1 para izquierda)
 let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
+let nuevaImg; // Variable para la nueva imagen
+let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
+let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
 
 // PHONE
 let bolita;
@@ -28,8 +31,9 @@ let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
 
 function preload() {
-  // Carga la imagen antes de ejecutar el sketch
+  // Carga las imagenes antes de ejecutar el sketch
   img = loadImage('chesterb.png');
+  nuevaImg = loadImage('chesterAcierto.png');
 
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
@@ -44,13 +48,16 @@ function setup() {
   img.resize(tamanoImagen, tamanoImagen);
   tiempoInicio = millis(); // Guarda el tiempo de inicio
 
+  // Redimensiona la nueva imagen al mismo tamaño que la imagen base
+  nuevaImg.resize(tamanoImagen, tamanoImagen);
+
   // PHONE
   bolita = new Bolita(width / 2, height / 2);
   mira = new Mira();
 }
 
 function draw() {
-//Mostrar el juego (no-detenido)
+  //Mostrar el juego (no-detenido)
   if (!juegoDetenido) {
     background(255, 165, 0);
 
@@ -72,7 +79,7 @@ function draw() {
 
     // Mostrar tiempo restante
     let segundosRestantes = Math.ceil(tiempoRestante / 1000); // Convierte a segundos y redondea hacia arriba
-    textSize(50); 
+    textSize(50);
     fill(255);
     textAlign(LEFT);
     text(`Time Left: ${segundosRestantes} seconds`, 20, 80); // Muestra el tiempo restante
@@ -94,6 +101,16 @@ function draw() {
     if (tiempoActual - lastSpeedIncrease >= 10000 && velocidadX < 16) {
       lastSpeedIncrease = tiempoActual; // Actualiza el registro del tiempo
       aumentarVelocidad(); // Llama a la función para aumentar la velocidad
+    }
+
+    if (mostrarNuevaImagen) {
+      // Verificar si ha pasado 1 segundo desde que se mostró la nueva imagen
+      let tiempoTranscurridoNuevaImg = millis() - tiempoInicioNuevaImg;
+      if (tiempoTranscurridoNuevaImg >= 1000) {
+        mostrarNuevaImagen = false;
+      }
+    } else {
+      drawCheetos();
     }
 
     // Llama a la función update()
@@ -125,7 +142,7 @@ function draw() {
 
   tiempoTranscurrido = millis() - tiempoInicio;
 
-//Detener el juego a x milisegundos
+  //Detener el juego a x milisegundos
   if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
     juegoDetenido = true;
   }
@@ -145,6 +162,12 @@ function update() {
 
 function drawCheetos() {
   image(img, x, y); // Muestra la imagen en las coordenadas (x, y)
+
+  if (mostrarNuevaImagen) {
+    image(nuevaImg, x, y); // Mostrar la nueva imagen si se debe mostrar
+  } else {
+    image(img, x, y); // Mostrar la imagen original
+  }
 }
 
 function drawPhone() {
@@ -161,6 +184,7 @@ function drawPhone() {
     mostrarFallo = true; //Mostrar anuncio de fallaste
   }
 }
+
 function verificarColision() {
   // Calcula la distancia entre el centro de la bolita y el centro de la imagen
   const distancia = dist(bolita.pos.x, bolita.pos.y, x + tamanoImagen / 2, y + tamanoImagen / 2);
@@ -171,6 +195,8 @@ function verificarColision() {
 
     // Muestra el aviso "Bien!" durante medio segundo
     mostrarBien = true;
+    mostrarNuevaImagen = true; // Mostrar la nueva imagen
+    tiempoInicioNuevaImg = millis(); // Guardar el tiempo de inicio de la nueva imagen
 
     // Restablece la posición de la bolita
     bolita.pos = createVector(width / 2, height / 2);
@@ -219,6 +245,7 @@ class Mira {
   constructor() {
     this.angle = 0; // Inicialmente, el ángulo es 0 grados
     this.direction = PI / 1.5;
+    this.pos = createVector(x, y); // Posición personalizada
   }
 
   update() {
@@ -240,16 +267,16 @@ class Mira {
     noFill();
     stroke(0);
     strokeWeight(2);
-    
+
     // Guarda el estado actual de la línea discontinua
     const lineDashState = drawingContext.getLineDash();
-    
+
     // Establece la línea como discontinua
     drawingContext.setLineDash([10, 10]); //longer stitches
-    
+
     // Dibuja la línea
     line(width / 2, height / 2, x2, y2);
-    
+
     // Restablece el estado de la línea a sólida
     drawingContext.setLineDash([]);
 
