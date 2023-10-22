@@ -21,6 +21,12 @@ let bienTimer = 30; // Duración del aviso en cuadros (medio segundo)
 let mostrarFallo = false; // Variable para controlar el aviso "Intenta de nuevo!"
 let FalloTimer = 30; // Duración del aviso en cuadros (medio segundo)
 
+let tiempoTranscurrido = 0;
+let juegoDetenido = false; // Variable para controlar si el juego se detuvo
+let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
+let tiempoRestante = tiempoJuego - tiempoTranscurrido;
+
+
 function preload() {
   // Carga la imagen antes de ejecutar el sketch
   img = loadImage('chesterb.png');
@@ -44,56 +50,87 @@ function setup() {
 }
 
 function draw() {
-  background(255, 165, 0);
+//Mostrar el juego (no-detenido)
+  if (!juegoDetenido) {
+    background(255, 165, 0);
 
-  drawPhone();
-  drawCheetos();
+    drawPhone();
+    drawCheetos();
 
-  // Verifica la colisión
-  verificarColision();
+    // Verifica la colisión
+    verificarColision();
 
-  // Usa la fuente personalizada para el puntaje
-  textFont(customFont); // Establece la fuente personalizada
-  textSize(50); // Tamaño del texto
-  fill(255); // Color del texto
-  text(`Score: ${puntaje}`, 20, 40); // Dibuja el texto del puntaje
+    // Mostrar puntaje actual
+    textFont(customFont); // Establece la fuente personalizada
+    textSize(50); // Tamaño del texto
+    fill(255); // Color del texto
+    textAlign(LEFT);
+    text(`Score: ${puntaje}`, 20, 40); // Dibuja el texto del puntaje
 
-  if (mostrarBien) {
-    textSize(80); // Tamaño del texto del aviso
-    fill(0, 255, 0); // Color del texto del aviso (verde)
-    text("Nice!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
-  }
-  if (mostrarFallo) {
-    textSize(70); // Tamaño del texto del aviso
-    fill(255, 0, 0); // Color del texto del aviso (rojo)
-    text("Try again!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
-  }
+    tiempoTranscurrido = millis() - tiempoInicio;
+    tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
-  let tiempoActual = millis();
-  if (tiempoActual - lastSpeedIncrease >= 10000 && velocidadX < 16) {
-    lastSpeedIncrease = tiempoActual; // Actualiza el registro del tiempo
-    aumentarVelocidad(); // Llama a la función para aumentar la velocidad
-  }
+    // Mostrar tiempo restante
+    let segundosRestantes = Math.ceil(tiempoRestante / 1000); // Convierte a segundos y redondea hacia arriba
+    textSize(50); 
+    fill(255);
+    textAlign(LEFT);
+    text(`Time Left: ${segundosRestantes} seconds`, 20, 80); // Muestra el tiempo restante
 
-  // Llama a la función update()
-  update();
-
-  // Controla la duración del aviso "Bien!"
-  if (mostrarBien) {
-    bienTimer--;
-    if (bienTimer <= 0) {
-      mostrarBien = false;
-      bienTimer = 30; // Reinicia el temporizador
+    if (mostrarBien) {
+      textSize(80); // Tamaño del texto del aviso
+      fill(0, 255, 0); // Color del texto del aviso (verde)
+      textAlign(CENTER, CENTER);
+      text("Nice!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
     }
-  }
-  if (mostrarFallo) {
-    FalloTimer--;
-    if (FalloTimer <= 0) {
-      mostrarFallo = false;
-      FalloTimer = 30; // Reinicia el temporizador
+    if (mostrarFallo) {
+      textSize(70); // Tamaño del texto del aviso
+      fill(255, 0, 0); // Color del texto del aviso (rojo)
+      textAlign(CENTER, CENTER);
+      text("Try again!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
     }
+
+    let tiempoActual = millis();
+    if (tiempoActual - lastSpeedIncrease >= 10000 && velocidadX < 16) {
+      lastSpeedIncrease = tiempoActual; // Actualiza el registro del tiempo
+      aumentarVelocidad(); // Llama a la función para aumentar la velocidad
+    }
+
+    // Llama a la función update()
+    update();
+
+    // Controla la duración del aviso "Bien!"
+    if (mostrarBien) {
+      bienTimer--;
+      if (bienTimer <= 0) {
+        mostrarBien = false;
+        bienTimer = 30; // Reinicia el temporizador
+      }
+    }
+    if (mostrarFallo) {
+      FalloTimer--;
+      if (FalloTimer <= 0) {
+        mostrarFallo = false;
+        FalloTimer = 30; // Reinicia el temporizador
+      }
+    }
+  } else {
+    // Muestra solo el puntaje cuando el juego está detenido
+    background(0); // Fondo negro
+    textSize(50);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text(`That's all! Your score: ${puntaje}`, width / 2, height / 2); // Muestra el puntaje en el centro
+  }
+
+  tiempoTranscurrido = millis() - tiempoInicio;
+
+//Detener el juego a x milisegundos
+  if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
+    juegoDetenido = true;
   }
 }
+
 
 function update() {
   x += velocidadX * direccion;
@@ -203,7 +240,20 @@ class Mira {
     noFill();
     stroke(0);
     strokeWeight(2);
-    setLineDash([10, 10]); //longer stitches
+    
+    // Guarda el estado actual de la línea discontinua
+    const lineDashState = drawingContext.getLineDash();
+    
+    // Establece la línea como discontinua
+    drawingContext.setLineDash([10, 10]); //longer stitches
+    
+    // Dibuja la línea
     line(width / 2, height / 2, x2, y2);
+    
+    // Restablece el estado de la línea a sólida
+    drawingContext.setLineDash([]);
+
+    // Restablece el estado original de la línea discontinua
+    drawingContext.setLineDash(lineDashState);
   }
 }
