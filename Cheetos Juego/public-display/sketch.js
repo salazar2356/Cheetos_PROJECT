@@ -1,19 +1,12 @@
-let img; // Variable para la imagen
 let x, y; // Coordenadas de la imagen
-let nuevaImg; // Variable para la nueva imagen
-let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
-let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
-let imgCheto; //Variable del boliqueso
 let tiempoInicio;
 let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegundo
 let tamanoImagen = 300; // Tamaño de la imagen en píxeles (ancho y alto)
 let direccion = 1; // Dirección del movimiento (1 para derecha, -1 para izquierda)
 let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
-
-let sonidoColision;
-let endsound;
-let failshoot;
-
+let nuevaImg; // Variable para la nueva imagen
+let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
+let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
 
 // PHONE
 let bolita;
@@ -40,15 +33,9 @@ function preload() {
   // Carga las imagenes antes de ejecutar el sketch
   img = loadImage('chesterb.png');
   nuevaImg = loadImage('chesterAcierto.png');
-  imgCheto = loadImage('boliqueso.png');
 
   // Carga la fuente personalizada
-  customFont = loadFont('CHEESEBU.ttf');
-  // Carga el sonidos
-  soundFormats('mp3', 'ogg');
-  sonidoColision = loadSound('acierto.mp3');
-  endsound = loadSound('chester.mp3')
-  failshoot = loadSound('fail.mp3')
+  customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
 }
 
 function setup() {
@@ -118,7 +105,7 @@ function draw() {
     if (mostrarNuevaImagen) {
       // Verificar si ha pasado 1 segundo desde que se mostró la nueva imagen
       let tiempoTranscurridoNuevaImg = millis() - tiempoInicioNuevaImg;
-      if (tiempoTranscurridoNuevaImg >= 550) {
+      if (tiempoTranscurridoNuevaImg >= 1000) {
         mostrarNuevaImagen = false;
       }
     } else {
@@ -157,7 +144,6 @@ function draw() {
   //Detener el juego a x milisegundos
   if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
     juegoDetenido = true;
-    endsound.play();
   }
 }
 
@@ -195,7 +181,6 @@ function drawPhone() {
     bolita.vel = createVector(0, 0); // Restablecer velocidad
     bolita.disparada = false; // Permitir otro disparo
     mostrarFallo = true; //Mostrar anuncio de fallaste
-    failshoot.play ();
   }
 }
 
@@ -204,9 +189,6 @@ function verificarColision() {
   const distancia = dist(bolita.pos.x, bolita.pos.y, x + tamanoImagen / 2, y + tamanoImagen / 2);
   // Si la distancia es menor que el radio de la bolita, hay colisión
   if (distancia < bolita.diametro / 2 + tamanoImagen / 2) {
-    // Reproduce el sonido de colisión
-    sonidoColision.play();
-
     // Aumenta el puntaje
     puntaje++;
 
@@ -221,7 +203,6 @@ function verificarColision() {
     bolita.disparada = false;
   }
 }
-
 
 function aumentarVelocidad() {
   velocidadX += 4; // Aumenta la velocidad en 5 unidades cada 10 segundos
@@ -238,7 +219,7 @@ function mousePressed() {
 class Bolita {
   constructor(x, y) {
     this.pos = createVector(x, y);
-    this.diametro = 60; 
+    this.diametro = 60;
     this.disparada = false;
   }
 
@@ -247,14 +228,13 @@ class Bolita {
   }
 
   display() {
-    const xOffset = this.diametro / 2; // Ajusta el desplazamiento horizontal
-    const yOffset = this.diametro / 2; // Ajusta el desplazamiento vertical
-    image(imgCheto, this.pos.x - xOffset, this.pos.y - yOffset); // Muestra la imagen centrada horizontal y verticalmente
+    fill(255, 140, 0);
+    ellipse(this.pos.x, this.pos.y, this.diametro);
   }
 
   disparar(mira) {
     if (!this.disparada) {
-      this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo);
+      this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
       this.disparada = true;
     }
   }
@@ -278,38 +258,40 @@ class Mira {
 
   display() {
     // Calcula las coordenadas del punto final de la línea en base al ángulo
-    const xCenter = width / 2;
-    const yCenter = height / 2;
-    const lineLength = 500; // Longitud de las líneas
+    const x2 = width / 2 + cos(radians(-this.angle)) * 500; // 100 es la longitud de la línea
+    const y2 = height / 2 + sin(radians(-this.angle)) * 500;
 
-    // Dibuja las tres miras
-    //mira central, borra el comentario pa ver- drawMira(xCenter, yCenter, this.angle, lineLength);
-    drawMira(xCenter, yCenter, this.angle - 10, lineLength); // Mira a la izquierda
-    drawMira(xCenter, yCenter, this.angle + 10, lineLength); // Mira a la derecha
+    // Dibuja la mira
+    noFill();
+    stroke(0);
+    strokeWeight(2);
+
+    // Guarda el estado actual de la línea discontinua
+    const lineDashState = drawingContext.getLineDash();
+
+    // Establece la línea como discontinua
+    drawingContext.setLineDash([10, 10]); //longer stitches
+
+    // Dibuja la línea
+    line(width / 2, height / 2, x2, y2);
+
+    // Restablece el estado de la línea a sólida
+    drawingContext.setLineDash([]);
+
+    // Restablece el estado original de la línea discontinua
+    drawingContext.setLineDash(lineDashState);
   }
 }
 
-function drawMira(xCenter, yCenter, angle, lineLength) {
-  const x2 = xCenter + cos(radians(-angle)) * lineLength;
-  const y2 = yCenter + sin(radians(-angle)) * lineLength;
+let input = "Listo"
+socket.on('confirmation', (data) =>{
+ input = data
+})
 
-  // Dibuja la mira
-  noFill();
-  stroke(0);
-  strokeWeight(2);
+// pantalla2.js
+let socket = io(); // Declarar e inicializar socket
 
-  // Guarda el estado actual de la línea discontinua
-  const lineDashState = drawingContext.getLineDash();
-
-  // Establece la línea como discontinua
-  drawingContext.setLineDash([10, 10]); // Define el patrón de la línea discontinua
-
-  // Dibuja la línea punteada
-  line(xCenter, yCenter, x2, y2);
-
-  // Restablece el estado de la línea a sólida
-  drawingContext.setLineDash([]);
-
-  // Restablece el estado original de la línea discontinua
-  drawingContext.setLineDash(lineDashState);
-}
+socket.on("disparo", () => {
+  console.log("Evento de disparo recibido en la pantalla receptora");
+  // Realiza aquí las acciones que desees cuando se reciba el evento de disparo
+});
