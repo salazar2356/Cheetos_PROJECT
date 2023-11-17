@@ -5,7 +5,7 @@ const PORT = 5050;
 
 const httpServer = expressApp.listen(PORT);
 const {Server} = require("socket.io");
-const ioServer  = new Server(httpServer);
+const ioServer = new Server(httpServer);
 
 const staticController = express.static('public-controller');
 const staticDisplay = express.static('public-display');
@@ -41,7 +41,7 @@ SerialPort.list().then((ports) => {
 
 // Opens a port
 const port = new SerialPort({
-    path: 'COM10',
+    path: 'COM4',
     baudRate: 9600
 });
 
@@ -50,11 +50,9 @@ const port = new SerialPort({
 
 // Read data from Serial Buffer
 
-
-port.on('data', (data) => {
-    console.log(data);
-})
-
+// port.on('data', (data) => {
+//     console.log("-----",data);
+// })
 
 //--------------------------------------- 2- 4- Reading after parsing
 
@@ -63,6 +61,5 @@ const parser = port.pipe(new ReadlineParser);
 parser.on('data', (data) => {
     console.log(data);
 })
-
 
 //--------------------------------------- 3- From String to Integer
