@@ -45,6 +45,10 @@ const port = new SerialPort({
     baudRate: 9600
 });
 
+port.on('error', (err) => {
+    console.error('Error en el puerto serial:', err.message);
+  });
+
 
 //--------------------------------------- 1- Read without parsing
 

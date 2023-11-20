@@ -212,9 +212,9 @@ function setLineDash(list) {
   drawingContext.setLineDash(list);
 }
 
-function mousePressed() {
+socket.on("disparo", () => {
   bolita.disparar(mira); // Dispara la bolita en dirección de la mira
-}
+});
 
 class Bolita {
   constructor(x, y) {

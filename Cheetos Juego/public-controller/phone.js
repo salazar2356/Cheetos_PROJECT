@@ -1,4 +1,4 @@
-// pantalla1.js
+// phone.js
 let socket = io(); // Declarar e inicializar socket
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,6 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   socket.on("nom", () => {
-    console.log("Ya");
+    console.log("¡Ya!");
   });
 });
