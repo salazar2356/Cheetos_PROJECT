@@ -1,3 +1,9 @@
+const NGROK = `https://${window.location.hostname}`
+const DNS = getDNS;
+let socket = io(NGROK, {
+  path: '/real-time'
+})
+
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
 let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegundo
@@ -7,6 +13,12 @@ let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
 let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
+
+
+// Sonidos
+let sonidoColision;
+let endsound;
+let failshoot;
 
 // PHONE
 let bolita;
@@ -31,12 +43,86 @@ let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
-  img = loadImage('chesterb.png');
   nuevaImg = loadImage('chesterAcierto.png');
+  img = loadImage('chesterb.png');
 
+  // Carga el sonidos
+  soundFormats('mp3', 'ogg');
+  sonidoColision = loadSound('acierto.mp3');
+  endsound = loadSound('chester.mp3')
+  failshoot = loadSound('fail.mp3')
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
 }
+
+class Bolita {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.diametro = 60;
+    this.disparada = false;
+  }
+
+  update() {
+    this.pos.add(this.vel);
+  }
+
+  display() {
+    fill(255, 140, 0);
+    ellipse(this.pos.x, this.pos.y, this.diametro);
+  }
+
+  disparar(mira) {
+    if (!this.disparada) {
+      this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
+      this.disparada = true;
+    }
+  }
+}
+
+
+class Mira {
+  constructor() {
+    this.angle = 0; // Inicialmente, el ángulo es 0 grados
+    this.direction = PI / 1.5;
+  }
+
+  update() {
+    // Control del movimiento automático de la mira
+    this.angle += this.direction; // Incrementa o disminuye el ángulo (ajusta la velocidad a tu preferencia)
+
+    // Cambia la dirección cuando llega a los límites
+    if (this.angle <= 0 || this.angle >= 180) {
+      this.direction *= -1; // Invierte la dirección
+    }
+  }
+
+  display() {
+    // Calcula las coordenadas del punto final de la línea en base al ángulo
+    const x2 = width / 2 + cos(radians(-this.angle)) * 500; // 100 es la longitud de la línea
+    const y2 = height / 2 + sin(radians(-this.angle)) * 500;
+
+    // Dibuja la mira
+    noFill();
+    stroke(0);
+    strokeWeight(2);
+
+    // Guarda el estado actual de la línea discontinua
+    const lineDashState = drawingContext.getLineDash();
+
+    // Establece la línea como discontinua
+    drawingContext.setLineDash([10, 10]); //longer stitches
+
+    // Dibuja la línea
+    line(width / 2, height / 2, x2, y2);
+
+    // Restablece el estado de la línea a sólida
+    drawingContext.setLineDash([]);
+
+    // Restablece el estado original de la línea discontinua
+    drawingContext.setLineDash(lineDashState);
+  }
+}
+
 
 function setup() {
   createCanvas(1300, 1700); // Tamaño del lienzo
@@ -144,6 +230,7 @@ function draw() {
   //Detener el juego a x milisegundos
   if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
     juegoDetenido = true;
+    endsound.play();
   }
 }
 
@@ -181,6 +268,7 @@ function drawPhone() {
     bolita.vel = createVector(0, 0); // Restablecer velocidad
     bolita.disparada = false; // Permitir otro disparo
     mostrarFallo = true; //Mostrar anuncio de fallaste
+    failshoot.play();
   }
 }
 
@@ -191,6 +279,7 @@ function verificarColision() {
   if (distancia < bolita.diametro / 2 + tamanoImagen / 2) {
     // Aumenta el puntaje
     puntaje++;
+    sonidoColision.play();
 
     // Muestra el aviso "Bien!" durante medio segundo
     mostrarBien = true;
@@ -212,86 +301,14 @@ function setLineDash(list) {
   drawingContext.setLineDash(list);
 }
 
-socket.on("disparo", () => {
-  bolita.disparar(mira); // Dispara la bolita en dirección de la mira
-});
-
-class Bolita {
-  constructor(x, y) {
-    this.pos = createVector(x, y);
-    this.diametro = 60;
-    this.disparada = false;
-  }
-
-  update() {
-    this.pos.add(this.vel);
-  }
-
-  display() {
-    fill(255, 140, 0);
-    ellipse(this.pos.x, this.pos.y, this.diametro);
-  }
-
-  disparar(mira) {
-    if (!this.disparada) {
-      this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
-      this.disparada = true;
-    }
-  }
-}
-
-class Mira {
-  constructor() {
-    this.angle = 0; // Inicialmente, el ángulo es 0 grados
-    this.direction = PI / 1.5;
-  }
-
-  update() {
-    // Control del movimiento automático de la mira
-    this.angle += this.direction; // Incrementa o disminuye el ángulo (ajusta la velocidad a tu preferencia)
-
-    // Cambia la dirección cuando llega a los límites
-    if (this.angle <= 0 || this.angle >= 180) {
-      this.direction *= -1; // Invierte la dirección
-    }
-  }
-
-  display() {
-    // Calcula las coordenadas del punto final de la línea en base al ángulo
-    const x2 = width / 2 + cos(radians(-this.angle)) * 500; // 100 es la longitud de la línea
-    const y2 = height / 2 + sin(radians(-this.angle)) * 500;
-
-    // Dibuja la mira
-    noFill();
-    stroke(0);
-    strokeWeight(2);
-
-    // Guarda el estado actual de la línea discontinua
-    const lineDashState = drawingContext.getLineDash();
-
-    // Establece la línea como discontinua
-    drawingContext.setLineDash([10, 10]); //longer stitches
-
-    // Dibuja la línea
-    line(width / 2, height / 2, x2, y2);
-
-    // Restablece el estado de la línea a sólida
-    drawingContext.setLineDash([]);
-
-    // Restablece el estado original de la línea discontinua
-    drawingContext.setLineDash(lineDashState);
-  }
-}
-
 let input = "Listo"
-socket.on('confirmation', (data) =>{
- input = data
+socket.on('confirmation', (data) => {
+  input = data
 })
 
-// pantalla2.js
-let socket = io(); // Declarar e inicializar socket
-
-socket.on("disparo", () => {
-  console.log("Evento de disparo recibido en la pantalla receptora");
-  // Realiza aquí las acciones que desees cuando se reciba el evento de disparo
+socket.on("disparando", (shoot) => {
+  if (shoot == true) {
+    bolita.disparar(mira); // Dispara la bolita en dirección de la mira
+    console.log(shoot);
+  }
 });

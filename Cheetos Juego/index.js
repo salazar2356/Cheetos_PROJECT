@@ -1,53 +1,50 @@
-const express = require("express"); 
+const express = require("express");
 
 const expressApp = express();
 const PORT = 5050;
 
 const httpServer = expressApp.listen(PORT);
-const {Server} = require("socket.io");
+const { Server } = require("socket.io");
 const ioServer = new Server(httpServer);
 
 const staticController = express.static('public-controller');
 const staticDisplay = express.static('public-display');
 
 expressApp.use('/controller', staticController);
-expressApp.use('/display',staticDisplay);
+expressApp.use('/display', staticDisplay);
 
 ioServer.on('connection', (socket) => {
-    //Configurar un manejador de eventos para al evento "confimation"
-    socket.on('confirmation', (data) => {
-        socket.broadcast.emit('confirmation', data)
-    })
+  //Configurar un manejador de eventos para al evento "confimation"
+  socket.on('disparo', (data) => {
+    socket.broadcast.emit('disparando', data)
+  })
 })
-
-
-
 
 // Import de SerialPort package
 const {
-    SerialPort,
-    ReadlineParser
+  SerialPort,
+  ReadlineParser
 } = require('serialport');
 
 
 SerialPort.list().then((ports) => {
-    console.log('Available ports:');
-    ports.forEach((port) => {
-      console.log(port.path);
-    });
+  console.log('Available ports:');
+  ports.forEach((port) => {
+    console.log(port.path);
   });
+});
 
 // Set the rules for the serial communication
 
 // Opens a port
 const port = new SerialPort({
-    path: 'COM4',
-    baudRate: 9600
+  path: 'COM3',
+  baudRate: 9600
 });
 
 port.on('error', (err) => {
-    console.error('Error en el puerto serial:', err.message);
-  });
+  console.error('Error en el puerto serial:', err.message);
+});
 
 
 //--------------------------------------- 1- Read without parsing
@@ -55,7 +52,7 @@ port.on('error', (err) => {
 // Read data from Serial Buffer
 
 // port.on('data', (data) => {
-//     console.log("-----",data);
+//   console.log("-----", data);
 // })
 
 //--------------------------------------- 2- 4- Reading after parsing
@@ -63,7 +60,7 @@ port.on('error', (err) => {
 const parser = port.pipe(new ReadlineParser);
 
 parser.on('data', (data) => {
-    console.log(data);
+  console.log(data);
 })
 
 //--------------------------------------- 3- From String to Integer
