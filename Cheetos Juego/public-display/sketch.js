@@ -1,8 +1,6 @@
-const NGROK = `https://${window.location.hostname}`
+const NGROK = `http://${window.location.hostname}:5050`
 const DNS = getDNS;
-let socket = io(NGROK, {
-  path: '/real-time'
-})
+let socket = io()
 
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
@@ -13,7 +11,6 @@ let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
 let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
-
 
 // Sonidos
 let sonidoColision;
@@ -51,6 +48,7 @@ function preload() {
   sonidoColision = loadSound('acierto.mp3');
   endsound = loadSound('chester.mp3')
   failshoot = loadSound('fail.mp3')
+
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
 }
@@ -78,7 +76,6 @@ class Bolita {
     }
   }
 }
-
 
 class Mira {
   constructor() {
@@ -157,7 +154,7 @@ function draw() {
     textSize(50); // Tamaño del texto
     fill(255); // Color del texto
     textAlign(LEFT);
-    text(`Score: ${puntaje}`, 20, 40); // Dibuja el texto del puntaje
+    text(`Score: ${puntaje} `, 20, 40); // Dibuja el texto del puntaje
 
     tiempoTranscurrido = millis() - tiempoInicio;
     tiempoRestante = tiempoJuego - tiempoTranscurrido;
@@ -306,7 +303,7 @@ socket.on('confirmation', (data) => {
   input = data
 })
 
-socket.on("disparando", (shoot) => {
+socket.on("disparo", (shoot) => {
   if (shoot == true) {
     bolita.disparar(mira); // Dispara la bolita en dirección de la mira
     console.log(shoot);

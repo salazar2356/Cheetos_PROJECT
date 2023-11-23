@@ -13,19 +13,11 @@ const staticDisplay = express.static('public-display');
 expressApp.use('/controller', staticController);
 expressApp.use('/display', staticDisplay);
 
-ioServer.on('connection', (socket) => {
-  //Configurar un manejador de eventos para al evento "confimation"
-  socket.on('disparo', (data) => {
-    socket.broadcast.emit('disparando', data)
-  })
-})
-
 // Import de SerialPort package
 const {
   SerialPort,
   ReadlineParser
 } = require('serialport');
-
 
 SerialPort.list().then((ports) => {
   console.log('Available ports:');
