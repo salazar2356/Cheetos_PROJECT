@@ -56,6 +56,7 @@ function preload() {
   sonidoColision = loadSound('acierto.mp3');
   endsound = loadSound('chester.mp3')
   failshoot = loadSound('fail.mp3')
+  shootsound = loadSound('blaster.mp3')
 
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
@@ -81,6 +82,8 @@ class Bolita {
     if (!this.disparada) {
       this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
       this.disparada = true;
+      // Reproduce el sonido al disparar
+      shootsound.play();
     }
   }
 }
