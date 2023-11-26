@@ -1,26 +1,38 @@
-const NGROK = `http://${window.location.hostname}:5050`
-const DNS = getDNS;
-let socket = io()
+const NGROK = `${window.location.hostname}`
 
-let IsShooting = false;
+let socket = io("http://localhost:5050", {path:'./real-time'})
+
+//let IsShooting = false;
+
+//const button = document.getElementById('boton-disparo')
+
+//button.addEventListener('click', (e) => {
+  //console.log('funciona');
+  //socket.emit('prueba', 'funciona')
+//})
 
 function setup() {
-  createCanvas(1200, 1200); // Crear un lienzo
-  button = createButton('Disparar');
-  button.position(120, 200); // Establecer la posición del botón en el lienzo
-  button.mousePressed(pressedBtn); // Función para enviar el mensaje al server
-  button.style('font-size', '60px')
-  button.size(800, 400)
+  frameRate(60)
+  createCanvas(windowWidth, windowHeight)
 }
+
+const x = 500
+const y = 500
+const size = 50
 
 function draw() {
-  background(220); // Fondo del lienzo
-  fill(0); // Color del texto del botón
+  ellipse(x, y, size, size)
+  probarMandarDatos()
+  
 }
 
-function pressedBtn() {
-  IsShooting = true;
-  socket.emit('disparo', IsShooting)
-  IsShooting = false;
-  console.log('valor del boton' + ': ' + IsShooting);
+//==========================================
+//INTENTO SOCKET
+
+function probarMandarDatos() {
+  if (dist(pmouseX, pmouseY, x, y) < size) {
+      console.log("New User")
+      socket.emit('confirmation', "aqui toy")
+      console.log("ha sido enviado exitosamente")
+  }
 }

@@ -1,6 +1,7 @@
-const NGROK = `http://${window.location.hostname}:5050`
-const DNS = getDNS;
-let socket = io()
+//Escucha el mensaje del server
+const NGROK = `${window.location.hostname}`
+
+let socket = io("http://localhost:5050", { path: './real-time' })
 
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
@@ -22,6 +23,11 @@ let bolita;
 let mira;
 let miraDirection = 1;
 let velocidadDisparo = 29;
+//JOYSTICK
+let miradisparo;
+let posx;
+let posy;
+let velocidad = 10;
 
 let puntaje = 0; // Variable para el puntaje
 let customFont; // Variable para la fuente personalizada
@@ -40,6 +46,8 @@ let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
+  miradisparo = loadImage('mira.png');
+
   nuevaImg = loadImage('chesterAcierto.png');
   img = loadImage('chesterb.png');
 
@@ -122,10 +130,11 @@ class Mira {
 
 
 function setup() {
-  createCanvas(1300, 1700); // Tamaño del lienzo
+  createCanvas(windowWidth, windowHeight); // Tamaño del lienzo
   x = width / 2; // Inicializa la posición X al centro
   y = height / 30; // Inicializa la posición Y arriba
-
+  posx = width / 2;
+  posy = height / 2;
   // Cambia el tamaño de la imagen al tamaño deseado
   img.resize(tamanoImagen, tamanoImagen);
   tiempoInicio = millis(); // Guarda el tiempo de inicio
@@ -138,11 +147,41 @@ function setup() {
   mira = new Mira();
 }
 
+//=======================================================================================================
+//SOCKET - JOYSTICK POSITIONS
+
+socket.on('joystick', message => {
+  const { x, y, button } = message
+  console.log(message);
+
+  if (x < 500) {
+    posx -= velocidad
+  }
+  if (x > 530) {
+    posx += velocidad
+  }
+  if (y < 500) {
+    posy -= velocidad
+  }
+  if (y > 500) {
+    posy += velocidad
+  }
+  socket.broadcast.emit("movió joystick", message)
+})
+
 function draw() {
+
+  // Actualiza la posición de la mira dentro del bucle draw()
+
+  // Muestra la imagen de la mira
+
   //Mostrar el juego (no-detenido)
   if (!juegoDetenido) {
-    background(255, 165, 0);
-
+    //===================================================================
+    //MIRA DISPARO
+    background(255, 165, 0, 100);
+    image(miradisparo, posx, posy, 200, 200);
+    //====================================================================
     drawPhone();
     drawCheetos();
 
@@ -243,14 +282,18 @@ function update() {
   }
 }
 
+//COORDENADAS DEL JOYSTICK
 function drawCheetos() {
-  image(img, x, y); // Muestra la imagen en las coordenadas (x, y)
-
+  //=========================================================================
   if (mostrarNuevaImagen) {
     image(nuevaImg, x, y); // Mostrar la nueva imagen si se debe mostrar
   } else {
     image(img, x, y); // Mostrar la imagen original
   }
+  //==========================================================================
+  //INTENTO SOCKET
+  console.log(info)
+
 }
 
 function drawPhone() {
@@ -298,14 +341,20 @@ function setLineDash(list) {
   drawingContext.setLineDash(list);
 }
 
-let input = "Listo"
+//==========================================================================
+//INTENTO CONEXIÓN SOCKET
+let info = "Connected"
+
 socket.on('confirmation', (data) => {
-  input = data
+  info = data
 })
 
-socket.on("disparo", (shoot) => {
-  if (shoot == true) {
-    bolita.disparar(mira); // Dispara la bolita en dirección de la mira
-    console.log(shoot);
+function keyPressed() {
+  if (keyCode === LEFT_ARROW) {
+    posx -= velocidad
+  } else if (keyCode === RIGHT_ARROW) {
+    posx += velocidad
   }
-});
+}
+
+//========================================================
