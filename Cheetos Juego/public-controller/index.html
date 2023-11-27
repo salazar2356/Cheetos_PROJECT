@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Controller</title>
+  <title>Register</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
@@ -14,11 +14,37 @@
   <script>
     const getDNS = "<%= DNS %>"
   </script>
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
+  <section class="form">
+    <div class="contentInfo">
+      <div class="title">
+        <h2>Thanks for playing!</h2>
+      </div>
+      <div class="text">
+        <p>
+          Congratulations you have won some Cheetos, first we need some information and you can claim your prize.
+        </p>
+      </div>
+      <div class="imgprize">
+        <img src="https://i.pinimg.com/originals/d8/a1/94/d8a194a3f2806679a50e37778e487396.png">
+      </div>
+    </div>
 
-  <script src="./phone.js"></script>
+    <div class="contentForm">
+      <div class="inputs">
+        <input type="text" placeholder="Username">
+        <input type="text" placeholder="E-mail">
+      </div>
+      <div class="btnSend">
+        <button id="btnPressed">Send</button>
+      </div>
+    </div>
+
+    <script src="./phone.js"></script>
+  </section>
 </body>
 
 </html>

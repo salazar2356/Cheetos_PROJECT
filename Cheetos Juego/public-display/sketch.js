@@ -43,10 +43,10 @@ let juegoDetenido = false; // Variable para controlar si el juego se detuvo
 let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
-
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
   miradisparo = loadImage('mira.png');
+  fondoMupi = loadImage('fondoMupi.jpg')
 
   nuevaImg = loadImage('chesterAcierto.png');
   img = loadImage('chesterb.png');
@@ -56,7 +56,6 @@ function preload() {
   sonidoColision = loadSound('acierto.mp3');
   endsound = loadSound('chester.mp3')
   failshoot = loadSound('fail.mp3')
-  shootsound = loadSound('blaster.mp3')
 
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
@@ -82,8 +81,6 @@ class Bolita {
     if (!this.disparada) {
       this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
       this.disparada = true;
-      // Reproduce el sonido al disparar
-      shootsound.play();
     }
   }
 }
@@ -133,7 +130,7 @@ class Mira {
 
 
 function setup() {
-  createCanvas(windowWidth, windowHeight); // Tamaño del lienzo
+  createCanvas(windowWidth / 3, windowHeight); // Tamaño del lienzo
   x = width / 2; // Inicializa la posición X al centro
   y = height / 30; // Inicializa la posición Y arriba
   posx = width / 2;
@@ -173,16 +170,13 @@ socket.on('joystick', message => {
 })
 
 function draw() {
-
-  // Actualiza la posición de la mira dentro del bucle draw()
-
-  // Muestra la imagen de la mira
-
   //Mostrar el juego (no-detenido)
   if (!juegoDetenido) {
     //===================================================================
+    //Fondo del mupi
+    image(fondoMupi, 0, 0, width, height)
+
     //MIRA DISPARO
-    background(255, 165, 0, 100);
     image(miradisparo, posx, posy, 200, 200);
     //====================================================================
     drawPhone();
@@ -296,7 +290,6 @@ function drawCheetos() {
   //==========================================================================
   //INTENTO SOCKET
   console.log(info)
-
 }
 
 function drawPhone() {
@@ -357,6 +350,10 @@ function keyPressed() {
     posx -= velocidad
   } else if (keyCode === RIGHT_ARROW) {
     posx += velocidad
+  } else if (keyCode === UP_ARROW) {
+    posy -= velocidad
+  } else if (keyCode === DOWN_ARROW) {
+    posy += velocidad
   }
 }
 

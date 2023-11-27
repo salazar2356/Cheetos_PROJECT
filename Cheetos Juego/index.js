@@ -13,8 +13,8 @@ expressApp.use(express.json());
 expressApp.use(cors({ origin: "*" }));
 expressApp.use(express.urlencoded({ extended: true }));
 expressApp.use('/', staticHome)
-expressApp.use('/form', staticController);
-expressApp.use('/game', staticDisplay);
+expressApp.use('/controller', staticController);
+expressApp.use('/display', staticDisplay);
 dotenv.config();
 
 // Import de SerialPort package
@@ -26,7 +26,6 @@ SerialPort.list().then((ports) => {
 });
 
 // Set the rules for the serial communication
-
 // Opens a port
 const port = new SerialPort({
   path: 'COM10',
@@ -63,8 +62,6 @@ ioServer.on('connection', (socket) => {
   socket.on('confirmation', (data) => {
     socket.broadcast.emit('confirmation', data)
   })
-
 })
-
 
 export { ioServer }
