@@ -16,6 +16,7 @@ let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
 let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
+let imgCheto; //Variable del boliqueso
 
 
 // Sonidos
@@ -57,6 +58,7 @@ function preload() {
 
   nuevaImg = loadImage('chesterAcierto.png');
   img = loadImage('chesterb.png');
+  imgCheto = loadImage('Cheese_ball.png');
 
   // Carga el sonidos
   soundFormats('mp3', 'ogg');
@@ -65,76 +67,8 @@ function preload() {
   failshoot = loadSound('fail.mp3')
 
   // Carga la fuente personalizada
-  customFont = loadFont('CHEESEBU.ttf'); // Asegúrate de que la fuente esté en la misma carpeta que el archivo HTML y JS
+  customFont = loadFont('CHEESEBU.ttf'); 
 }
-
-class Bolita {
-  constructor(x, y) {
-    this.pos = createVector(x, y);
-    this.diametro = 60;
-    this.disparada = false;
-  }
-
-  update() {
-    this.pos.add(this.vel);
-  }
-
-  display() {
-    fill(255, 140, 0);
-    ellipse(this.pos.x, this.pos.y, this.diametro);
-  }
-
-  disparar(mira) {
-    if (!this.disparada) {
-      this.vel = p5.Vector.fromAngle(radians(-mira.angle)).mult(velocidadDisparo); // Utiliza el ángulo de la mira
-      this.disparada = true;
-    }
-  }
-}
-
-class Mira {
-  constructor() {
-    this.angle = 0; // Inicialmente, el ángulo es 0 grados
-    this.direction = PI / 1.5;
-  }
-
-  update() {
-    // Control del movimiento automático de la mira
-    this.angle += this.direction; // Incrementa o disminuye el ángulo (ajusta la velocidad a tu preferencia)
-
-    // Cambia la dirección cuando llega a los límites
-    if (this.angle <= 0 || this.angle >= 180) {
-      this.direction *= -1; // Invierte la dirección
-    }
-  }
-
-  display() {
-    // Calcula las coordenadas del punto final de la línea en base al ángulo
-    const x2 = width / 2 + cos(radians(-this.angle)) * 500; // 100 es la longitud de la línea
-    const y2 = height / 2 + sin(radians(-this.angle)) * 500;
-
-    // Dibuja la mira
-    noFill();
-    stroke(0);
-    strokeWeight(2);
-
-    // Guarda el estado actual de la línea discontinua
-    const lineDashState = drawingContext.getLineDash();
-
-    // Establece la línea como discontinua
-    drawingContext.setLineDash([10, 10]); //longer stitches
-
-    // Dibuja la línea
-    line(width / 2, height / 2, x2, y2);
-
-    // Restablece el estado de la línea a sólida
-    drawingContext.setLineDash([]);
-
-    // Restablece el estado original de la línea discontinua
-    drawingContext.setLineDash(lineDashState);
-  }
-}
-
 
 function setup() {
   createCanvas(windowWidth / 3, windowHeight); // Tamaño del lienzo
@@ -149,10 +83,65 @@ function setup() {
   // Redimensiona la nueva imagen al mismo tamaño que la imagen base
   nuevaImg.resize(tamanoImagen, tamanoImagen);
 
-  // PHONE
+  // Disparo
   bolita = new Bolita(width / 2, height / 2);
   mira = new Mira();
-  
+  console.log("En setup:", posx, posy);
+}
+
+class Bolita {
+  constructor(x, y) {
+    this.pos = createVector(x, y);
+    this.diametro = 60;
+    this.disparada = false;
+  }
+
+  update() {
+    this.pos.add(this.vel);
+  }
+
+  display() {
+    const xOffset = this.diametro / 2; // Ajusta el desplazamiento horizontal
+    const yOffset = this.diametro / 2; // Ajusta el desplazamiento vertical
+    image(imgCheto, this.pos.x - xOffset, this.pos.y - yOffset); // Muestra la imagen centrada horizontal y verticalmente 
+    ellipse(this.pos.x, this.pos.y, this.diametro);
+  }
+
+  //disparo hacia arriba FUNCIONA
+  // disparar() {
+  //   if (!this.disparada) {
+  //     this.vel = createVector(0, -velocidadDisparo);
+  //     this.disparada = true;
+  //   }
+  // }
+  //gpt ayudando, aún no funciona
+  disparar() {
+    console.log("Intentando disparar"); // Agregado para depuración
+    if (!this.disparada) {
+      // Calcula la dirección hacia las coordenadas de la mira
+      const direccion = createVector(posx - this.pos.x, posy - this.pos.y).normalize();
+      console.log("Dirección de disparo:", direccion); // Agregado para depuración
+      this.vel = direccion.mult(velocidadDisparo); // Establece la velocidad de disparo
+      this.disparada = true;
+    }
+  }
+}
+
+class Mira {
+  constructor() {
+    //sí, aquí no va nada a-
+  }
+
+  update() {
+  //sí, aquí tampoco va nada--
+  }
+
+  display() {
+    // Dibuja la bolita-boliqueso
+    noFill();
+    stroke(0);
+    strokeWeight(2);
+  }
 }
 
 //=======================================================================================================
@@ -185,6 +174,10 @@ function draw() {
     //===================================================================
     //Fondo del mupi
     image(fondoMupi, 0, 0, width, height)
+
+    //===================================================================
+    //Combrobación de posición de la mira
+    console.log("En draw la mira está en:", posx, posy);
 
     //MIRA DISPARO
     image(miradisparo, posx, posy, 200, 200);
@@ -345,6 +338,10 @@ function aumentarVelocidad() {
 
 function setLineDash(list) {
   drawingContext.setLineDash(list);
+}
+
+function mousePressed() {
+  bolita.disparar({ posx, posy }); // Dispara la bolita en dirección de la imágen de mira
 }
 
 //==========================================================================
