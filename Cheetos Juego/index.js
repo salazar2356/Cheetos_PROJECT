@@ -1,10 +1,10 @@
 import { express, Server, cors, SerialPort, ReadlineParser, dotenv } from './dependences.js'
 const expressApp = express();
 const PORT = 5050;
-const httpServer = expressApp.listen(PORT);
+const httpServer = expressApp.listen(PORT, ()=>{console.log("listening at ", PORT)});
 
-const ioServer = new Server(httpServer, { path: '/real-time' });
-
+const ioServer = new Server(httpServer);
+//console.log(ioServer); , { path: '/real-time' }
 const staticController = express.static('public-controller');
 const staticDisplay = express.static('public-display');
 const staticHome = express.static('public-home');
@@ -32,6 +32,7 @@ const port = new SerialPort({
   baudRate: 9600
 });
 
+//console.log("puerto: ", port);
 port.on('error', (err) => {
   console.error('Error en el puerto serial:', err.message);
 });
@@ -42,26 +43,52 @@ port.on('error', (err) => {
 //Metodo (SPLIT): 
 //Se usa para dividir una cadena delimitada en subcadenas
 
-const parser = port.pipe(new ReadlineParser);
+const parser = port.pipe(new ReadlineParser());
 
 parser.on('data', (data) => {
-  const formatedData = data.split(' ')
-  const neededData = {
-    x: parseInt(formatedData[1]),
-    y: parseInt(formatedData[3]),
-    button: parseInt(formatedData[5])
+  
+  const formatedData = data.split(',')
+
+  let neededData = {
+      x: parseInt(formatedData[0]),
+      y: parseInt(formatedData[1]),
+     button: parseInt(formatedData[2])
   }
+  
+  //console.log(neededData);
+ 
   // console.log(neededData);
   ioServer.emit('joystick', neededData)
 })
 
 //================================ 3- Connecion
 //INTENTO SOCKET
-ioServer.on('connection', (socket) => {
+
   //Configurar un manejador de eventos para al evento "confimation"
-  socket.on('confirmation', (data) => {
-    socket.broadcast.emit('confirmation', data)
+
+  ioServer.on('connection', (socket) => {
+    //Configurar un manejador de eventos para al evento "confimation"
+    socket.on('confirmation', (data) => {
+        socket.broadcast.emit('confirmation', data)
+    })
+})
+
+
+//ioServer.on('connection', (socket) => {
+  //Configurar un manejador de eventos para al evento "confimation"
+  /*console.log("CONNECTED !!!", socket);
+  socket.on('disconnect', (data) => {
+    //socket.broadcast.emit('confirmation', data)
+  //  console.log("close ");
+  socket.on("confirmation", (sockettt) =>{
+    console.log("Server");
+
+  })
+
   })
 })
 
-export { ioServer }
+ioServer.emit('mensajex', console.log("x"))
+
+
+//export { ioServer }*/

@@ -1,7 +1,11 @@
 //Escucha el mensaje del server
 const NGROK = `${window.location.hostname}`
 
-let socket = io("http://localhost:5050", { path: './real-time' })
+let socket = io();//"http://localhost:5050", { path: './real-time' }
+
+/*socket.on('connection', client => { 
+  console.log("recibido: ", client);
+});*/
 
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
@@ -12,6 +16,7 @@ let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
 let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
+
 
 // Sonidos
 let sonidoColision;
@@ -42,6 +47,8 @@ let tiempoTranscurrido = 0;
 let juegoDetenido = false; // Variable para controlar si el juego se detuvo
 let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
+
+
 
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
@@ -145,19 +152,20 @@ function setup() {
   // PHONE
   bolita = new Bolita(width / 2, height / 2);
   mira = new Mira();
+  
 }
 
 //=======================================================================================================
 //SOCKET - JOYSTICK POSITIONS
 
 socket.on('joystick', message => {
-  const { x, y, button } = message
-  console.log(message);
+  const { x, y, button } = message;
+  //console.log("recibido: ", message);
 
-  if (x < 500) {
+  if (x > 500) {
     posx -= velocidad
   }
-  if (x > 530) {
+  if (x < 530) {
     posx += velocidad
   }
   if (y < 500) {
@@ -166,8 +174,10 @@ socket.on('joystick', message => {
   if (y > 500) {
     posy += velocidad
   }
-  socket.broadcast.emit("movió joystick", message)
+  //socket.broadcast.emit("movió joystick", message)
 })
+
+socket.on("confirmation")
 
 function draw() {
   //Mostrar el juego (no-detenido)
@@ -289,7 +299,7 @@ function drawCheetos() {
   }
   //==========================================================================
   //INTENTO SOCKET
-  console.log(info)
+  //console.log(info)
 }
 
 function drawPhone() {
@@ -339,22 +349,18 @@ function setLineDash(list) {
 
 //==========================================================================
 //INTENTO CONEXIÓN SOCKET
-let info = "Connected"
+let info = "Todavía na"
 
 socket.on('confirmation', (data) => {
   info = data
 })
 
-function keyPressed() {
-  if (keyCode === LEFT_ARROW) {
-    posx -= velocidad
-  } else if (keyCode === RIGHT_ARROW) {
-    posx += velocidad
-  } else if (keyCode === UP_ARROW) {
-    posy -= velocidad
-  } else if (keyCode === DOWN_ARROW) {
-    posy += velocidad
-  }
-}
+
+/*let info = "Connected"
+
+socket.on('confirmation', (data) => {
+  info = data
+})*/
 
 //========================================================
+
