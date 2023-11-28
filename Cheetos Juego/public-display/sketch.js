@@ -23,6 +23,7 @@ let imgCheto; //Variable del boliqueso
 let sonidoColision;
 let endsound;
 let failshoot;
+let musicaFondo;
 
 // PHONE
 let bolita;
@@ -49,6 +50,8 @@ let juegoDetenido = false; // Variable para controlar si el juego se detuvo
 let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
+let anchoMira; // Agregado para almacenar el ancho de la mira
+let altoMira; // Agregado para almacenar el alto de la mira
 
 
 function preload() {
@@ -65,17 +68,32 @@ function preload() {
   sonidoColision = loadSound('acierto.mp3');
   endsound = loadSound('chester.mp3')
   failshoot = loadSound('fail.mp3')
+  musicaFondo = loadSound('FondoMusic.mp3');
+  musicaFondo.setVolume(0.3);
 
   // Carga la fuente personalizada
   customFont = loadFont('CHEESEBU.ttf'); 
+
+   // Carga la imagen de la mira
+   miradisparo = loadImage('mira.png', img => {
+    // Redimensiona la imagen para que tenga un tamaño más manejable
+    anchoMira = 150; // ajusta el ancho a tu preferencia
+    altoMira = (img.height / img.width) * anchoMira; // mantiene la proporción original
+
+    // Ahora puedes usar anchoMira y altoMira para dibujar la mira
+  });
 }
 
 function setup() {
   createCanvas(windowWidth / 3, windowHeight); // Tamaño del lienzo
+
   x = width / 2; // Inicializa la posición X al centro
   y = height / 30; // Inicializa la posición Y arriba
   posx = width / 2;
-  posy = height / 2;
+  posy = height / 4;
+
+  musicaFondo.loop();
+
   // Cambia el tamaño de la imagen al tamaño deseado
   img.resize(tamanoImagen, tamanoImagen);
   tiempoInicio = millis(); // Guarda el tiempo de inicio
@@ -86,7 +104,7 @@ function setup() {
   // Disparo
   bolita = new Bolita(width / 2, height / 2);
   mira = new Mira();
-  console.log("En setup:", posx, posy);
+  console.log("La posición de la mira en setup es:", posx, posy);
 }
 
 class Bolita {
@@ -107,20 +125,11 @@ class Bolita {
     ellipse(this.pos.x, this.pos.y, this.diametro);
   }
 
-  //disparo hacia arriba FUNCIONA
-  // disparar() {
-  //   if (!this.disparada) {
-  //     this.vel = createVector(0, -velocidadDisparo);
-  //     this.disparada = true;
-  //   }
-  // }
-  //gpt ayudando, aún no funciona
+  //gpt ayudando, ahora sí!
   disparar() {
-    console.log("Intentando disparar"); // Agregado para depuración
     if (!this.disparada) {
       // Calcula la dirección hacia las coordenadas de la mira
       const direccion = createVector(posx - this.pos.x, posy - this.pos.y).normalize();
-      console.log("Dirección de disparo:", direccion); // Agregado para depuración
       this.vel = direccion.mult(velocidadDisparo); // Establece la velocidad de disparo
       this.disparada = true;
     }
@@ -163,6 +172,7 @@ socket.on('joystick', message => {
   if (y > 500) {
     posy += velocidad
   }
+
   //socket.broadcast.emit("movió joystick", message)
 })
 
@@ -175,18 +185,15 @@ function draw() {
     //Fondo del mupi
     image(fondoMupi, 0, 0, width, height)
 
-    //===================================================================
-    //Combrobación de posición de la mira
-    console.log("En draw la mira está en:", posx, posy);
-
-    //MIRA DISPARO
-    image(miradisparo, posx, posy, 200, 200);
     //====================================================================
     drawPhone();
     drawCheetos();
 
     // Verifica la colisión
     verificarColision();
+
+     // Llama a la función update()
+     update();
 
     // Mostrar puntaje actual
     textFont(customFont); // Establece la fuente personalizada
@@ -234,8 +241,9 @@ function draw() {
       drawCheetos();
     }
 
-    // Llama a la función update()
-    update();
+    //===================================================================
+    //Acomodar imáagen al centro de posx y posy
+    image(miradisparo, posx - anchoMira / 2, posy - altoMira / 2, anchoMira, altoMira);
 
     // Controla la duración del aviso "Bien!"
     if (mostrarBien) {
@@ -267,9 +275,9 @@ function draw() {
   if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
     juegoDetenido = true;
     endsound.play();
+    musicaFondo.stop();
   }
 }
-
 
 function update() {
   x += velocidadX * direccion;
@@ -280,6 +288,20 @@ function update() {
   } else if (x < 0) {
     direccion = 1; // Cambia la dirección a derecha
   }
+
+// Restringe el movimiento de la mira en el eje X
+if (posx + 57 > width) {
+  posx = width - 57; // Ajusta la posición para que no se salga a la derecha
+} else if (posx < 57) {
+  posx = 57; // Ajusta la posición para que no se salga a la izquierda
+}
+
+// Restringe el movimiento de la mira en el eje Y
+if (posy + 57 > height) {
+  posy = height - 57; // Ajusta la posición para que no se salga hacia abajo
+} else if (posy < 57) {
+  posy = 57; // Ajusta la posición para que no se salga hacia arriba
+}
 }
 
 //COORDENADAS DEL JOYSTICK
@@ -290,9 +312,6 @@ function drawCheetos() {
   } else {
     image(img, x, y); // Mostrar la imagen original
   }
-  //==========================================================================
-  //INTENTO SOCKET
-  //console.log(info)
 }
 
 function drawPhone() {
@@ -336,10 +355,6 @@ function aumentarVelocidad() {
   velocidadX += 4; // Aumenta la velocidad en 5 unidades cada 10 segundos
 }
 
-function setLineDash(list) {
-  drawingContext.setLineDash(list);
-}
-
 function mousePressed() {
   bolita.disparar({ posx, posy }); // Dispara la bolita en dirección de la imágen de mira
 }
@@ -360,4 +375,15 @@ socket.on('confirmation', (data) => {
 })*/
 
 //========================================================
-
+//prueba de teclas
+function keyPressed() {
+  if (keyCode === LEFT_ARROW) {
+    posx -= velocidad
+  } else if (keyCode === RIGHT_ARROW) {
+    posx += velocidad
+  } else if (keyCode === UP_ARROW) {
+    posy -= velocidad
+  } else if (keyCode === DOWN_ARROW) {
+    posy += velocidad
+  }
+}
