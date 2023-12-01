@@ -1,38 +1,58 @@
+// 1. Import dependencies ====================================================
+
 import { express, Server, cors, SerialPort, ReadlineParser, dotenv } from './dependences.js'
-const expressApp = express();
+
+//ISA CAMBIOS SOCKET TUTO
+// 2. Set the server's configuration with EXPRESS===============================
+
 const PORT = 5050;
-const httpServer = expressApp.listen(PORT, ()=>{console.log("listening at ", PORT)});
-
-const ioServer = new Server(httpServer);
-//console.log(ioServer); , { path: '/real-time' }
-const staticController = express.static('public-controller');
-const staticDisplay = express.static('public-display');
-const staticHome = express.static('public-home');
-
+const expressApp = express();
+expressApp.use(cors({origin:"*"}));
 expressApp.use(express.json());
-expressApp.use(cors({ origin: "*" }));
-expressApp.use(express.urlencoded({ extended: true }));
-expressApp.use('/', staticHome)
-expressApp.use('/controller', staticController);
-expressApp.use('/display', staticDisplay);
-dotenv.config();
+expressApp.use("/display", express.static("public-display"));
+expressApp.use("/form", express.static("public-form"));
+expressApp.use("/home", express.static("public-home"));
 
-// Import de SerialPort package
-SerialPort.list().then((ports) => {
-  console.log('Available ports:');
-  ports.forEach((port) => {
-    console.log(port.path);
+// 3. Create the server using EXPRESS ===============================
+
+const server = expressApp.listen(PORT, () => {
+  console.table({
+    Display: `http://localhost:${PORT}/display`,
+    Form: `http://localhost:${PORT}/form`,
+    Home: `http://localhost:${PORT}/home`,
+  })
+})
+
+//4. Create server in real time
+
+const io = new Server(server, {
+  path:"/real-time",
+})
+
+//5. Connect server to listen and send events
+
+io.on("connection", (socket) => {
+  console.log("Connected!", socket.id);
+
+//6.the server listens to the event "sending-color" and broadcasts the message to the event "receiving-color"
+
+  socket.on("sending-color", (message) => {
+    socket.broadcast.emit("receiving-color", message);
   });
 });
 
-// Set the rules for the serial communication
+//====================================================
+
+
+//7.Set the rules for the serial communication
 // Opens a port
+
 const port = new SerialPort({
   path: 'COM10',
   baudRate: 9600
 });
 
-//console.log("puerto: ", port);
+//8. console.log("puerto: ", port);
 port.on('error', (err) => {
   console.error('Error en el puerto serial:', err.message);
 });
@@ -57,38 +77,7 @@ parser.on('data', (data) => {
   
   //console.log(neededData);
  
-  // console.log(neededData);
-  ioServer.emit('joystick', neededData)
-})
-
-//================================ 3- Connecion
-//INTENTO SOCKET
-
-  //Configurar un manejador de eventos para al evento "confimation"
-
-  ioServer.on('connection', (socket) => {
-    //Configurar un manejador de eventos para al evento "confimation"
-    socket.on('confirmation', (data) => {
-        socket.broadcast.emit('confirmation', data)
-    })
+  io.emit('joystick', neededData)
 })
 
 
-//ioServer.on('connection', (socket) => {
-  //Configurar un manejador de eventos para al evento "confimation"
-  /*console.log("CONNECTED !!!", socket);
-  socket.on('disconnect', (data) => {
-    //socket.broadcast.emit('confirmation', data)
-  //  console.log("close ");
-  socket.on("confirmation", (sockettt) =>{
-    console.log("Server");
-
-  })
-
-  })
-})
-
-ioServer.emit('mensajex', console.log("x"))
-
-
-//export { ioServer }*/

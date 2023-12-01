@@ -1,12 +1,17 @@
-//Escucha el mensaje del server
-const NGROK = `${window.location.hostname}`
+//Get DNS from the URL
+const DNS = getDNS;
 
-let socket = io();//"http://localhost:5050", { path: './real-time' }
+//Import socket to listen or send messages using events.
+const laurl = `http://${window.location.hostname}:5050`;
+let socket = io(laurl, {
+  path: "/real-time",
+});
 
-/*socket.on('connection', client => { 
-  console.log("recibido: ", client);
-});*/
-
+// valores base de las teclas
+let movingLeft = false;
+let movingRight = false;
+let movingUp = false;
+let movingDown = false;
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
 let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegundo
@@ -34,6 +39,7 @@ let velocidadDisparo = 29;
 let miradisparo;
 let posx;
 let posy;
+let button;
 let velocidad = 10;
 
 let puntaje = 0; // Variable para el puntaje
@@ -158,7 +164,7 @@ class Mira {
 
 socket.on('joystick', message => {
   const { x, y, button } = message;
-  //console.log("recibido: ", message);
+  console.log("recibido: ", message);
 
   if (x > 500) {
     posx -= velocidad
@@ -172,11 +178,15 @@ socket.on('joystick', message => {
   if (y > 500) {
     posy += velocidad
   }
-
+  if (button === 0) {
+    // Ejecutar la acción de disparar
+    console.log("¡Disparo!");
+    // Llama a función que ejecuta el disparo
+    mousePressed();
+  }
   //socket.broadcast.emit("movió joystick", message)
 })
 
-socket.on("confirmation")
 
 function draw() {
   //Mostrar el juego (no-detenido)
@@ -277,7 +287,22 @@ function draw() {
     endsound.play();
     musicaFondo.stop();
   }
+   // Mover el objeto si las teclas están presionadas
+   if (movingLeft) {
+    posx -= velocidad;
+  }
+  if (movingRight) {
+    posx += velocidad;
+  }
+  if (movingUp) {
+    posy -= velocidad;
+  }
+  if (movingDown) {
+    posy += velocidad;
+  }
 }
+
+
 
 function update() {
   x += velocidadX * direccion;
@@ -359,31 +384,47 @@ function mousePressed() {
   bolita.disparar({ posx, posy }); // Dispara la bolita en dirección de la imágen de mira
 }
 
-//==========================================================================
-//INTENTO CONEXIÓN SOCKET
-let info = "Todavía na"
-
-socket.on('confirmation', (data) => {
-  info = data
-})
-
-
-/*let info = "Connected"
-
-socket.on('confirmation', (data) => {
-  info = data
-})*/
-
-//========================================================
-//prueba de teclas
+//Las funciones para mover cuando lo presionan y dejarla quietar cuando sueltan
 function keyPressed() {
   if (keyCode === LEFT_ARROW) {
-    posx -= velocidad
+    movingLeft = true;
   } else if (keyCode === RIGHT_ARROW) {
-    posx += velocidad
+    movingRight = true;
   } else if (keyCode === UP_ARROW) {
-    posy -= velocidad
+    movingUp = true;
   } else if (keyCode === DOWN_ARROW) {
-    posy += velocidad
+    movingDown = true;
   }
 }
+
+function keyReleased() {
+  if (keyCode === LEFT_ARROW) {
+    movingLeft = false;
+  } else if (keyCode === RIGHT_ARROW) {
+    movingRight = false;
+  } else if (keyCode === UP_ARROW) {
+    movingUp = false;
+  } else if (keyCode === DOWN_ARROW) {
+    movingDown = false;
+  }
+}
+
+//Listen to event "registro" from phone
+socket.on("registro", (register) =>{
+
+  username = register.username;
+  email = register.email;
+
+})
+
+//==============================
+let r = 3;
+let g = 255;
+let b = 0;
+
+socket.on("receiving-color", (color) => {
+  r = color.r;
+  g = color.g;
+  b = color.b;
+  console.log(color);
+});
