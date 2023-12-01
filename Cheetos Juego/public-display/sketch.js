@@ -15,13 +15,14 @@ let movingDown = false;
 let x, y; // Coordenadas de la imagen
 let tiempoInicio;
 let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegundo
-let tamanoImagen = 300; // Tamaño de la imagen en píxeles (ancho y alto)
+let tamanoImagen = 150; // Tamaño de la imagen en píxeles (ancho y alto)
 let direccion = 1; // Dirección del movimiento (1 para derecha, -1 para izquierda)
 let lastSpeedIncrease = 0; // Registro del tiempo de la última aceleración
 let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
 let imgCheto; //Variable del boliqueso
+let shooter; //Variable del cañon
 
 
 // Sonidos
@@ -40,7 +41,7 @@ let miradisparo;
 let posx;
 let posy;
 let button;
-let velocidad = 10;
+let velocidad = 20;
 
 let puntaje = 0; // Variable para el puntaje
 let customFont; // Variable para la fuente personalizada
@@ -67,7 +68,8 @@ function preload() {
 
   nuevaImg = loadImage('chesterAcierto.png');
   img = loadImage('chesterb.png');
-  imgCheto = loadImage('Cheese_ball.png');
+  imgCheto = loadImage('boliqueso.png');
+  shooter = loadImage('canon.png')
 
   // Carga el sonidos
   soundFormats('mp3', 'ogg');
@@ -83,7 +85,7 @@ function preload() {
    // Carga la imagen de la mira
    miradisparo = loadImage('mira.png', img => {
     // Redimensiona la imagen para que tenga un tamaño más manejable
-    anchoMira = 150; // ajusta el ancho a tu preferencia
+    anchoMira = 60; // ajusta el ancho a tu preferencia
     altoMira = (img.height / img.width) * anchoMira; // mantiene la proporción original
 
     // Ahora puedes usar anchoMira y altoMira para dibujar la mira
@@ -91,7 +93,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth / 3, windowHeight); // Tamaño del lienzo
+  createCanvas(windowWidth, windowHeight); // Tamaño del lienzo
 
   x = width / 2; // Inicializa la posición X al centro
   y = height / 30; // Inicializa la posición Y arriba
@@ -108,7 +110,7 @@ function setup() {
   nuevaImg.resize(tamanoImagen, tamanoImagen);
 
   // Disparo
-  bolita = new Bolita(width / 2, height / 2);
+  bolita = new Bolita(width / 2, height -80);
   mira = new Mira();
   console.log("La posición de la mira en setup es:", posx, posy);
 }
@@ -154,8 +156,7 @@ class Mira {
   display() {
     // Dibuja la bolita-boliqueso
     noFill();
-    stroke(0);
-    strokeWeight(2);
+    noStroke()
   }
 }
 
@@ -190,11 +191,13 @@ socket.on('joystick', message => {
 
 function draw() {
   //Mostrar el juego (no-detenido)
+
   if (!juegoDetenido) {
     //===================================================================
     //Fondo del mupi
     image(fondoMupi, 0, 0, width, height)
 
+    
     //====================================================================
     drawPhone();
     drawCheetos();
@@ -207,29 +210,29 @@ function draw() {
 
     // Mostrar puntaje actual
     textFont(customFont); // Establece la fuente personalizada
-    textSize(50); // Tamaño del texto
-    fill(255); // Color del texto
+    textSize(38); // Tamaño del texto
+    fill(19, 29, 44); // Color del texto
     textAlign(LEFT);
-    text(`Score: ${puntaje} `, 20, 40); // Dibuja el texto del puntaje
+    text(`Score: ${puntaje} `, 20, windowHeight-90); // Dibuja el texto del puntaje
 
     tiempoTranscurrido = millis() - tiempoInicio;
     tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
     // Mostrar tiempo restante
     let segundosRestantes = Math.ceil(tiempoRestante / 1000); // Convierte a segundos y redondea hacia arriba
-    textSize(50);
-    fill(255);
+    textSize(38);
+    fill(19, 29, 44);
     textAlign(LEFT);
-    text(`Time Left: ${segundosRestantes} seconds`, 20, 80); // Muestra el tiempo restante
+    text(`Time Left: ${segundosRestantes} seconds`, 20, windowHeight-50); // Muestra el tiempo restante
 
     if (mostrarBien) {
-      textSize(80); // Tamaño del texto del aviso
+      textSize(60); // Tamaño del texto del aviso
       fill(0, 255, 0); // Color del texto del aviso (verde)
       textAlign(CENTER, CENTER);
       text("Nice!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
     }
     if (mostrarFallo) {
-      textSize(70); // Tamaño del texto del aviso
+      textSize(60); // Tamaño del texto del aviso
       fill(255, 0, 0); // Color del texto del aviso (rojo)
       textAlign(CENTER, CENTER);
       text("Try again!", width / 2 - 50, height / 4); // Dibuja el aviso "Bien!"
@@ -254,6 +257,8 @@ function draw() {
     //===================================================================
     //Acomodar imáagen al centro de posx y posy
     image(miradisparo, posx - anchoMira / 2, posy - altoMira / 2, anchoMira, altoMira);
+    image(shooter, windowWidth/2.18, windowHeight-70)
+
 
     // Controla la duración del aviso "Bien!"
     if (mostrarBien) {
@@ -347,7 +352,7 @@ function drawPhone() {
   bolita.display();
 
   if (bolita.pos.x < 0 || bolita.pos.x > width || bolita.pos.y < 0 || bolita.pos.y > height) {
-    bolita.pos = createVector(width / 2, height / 2); // Restablecer posición inicial
+    bolita.pos = createVector(width / 2, height -80); // Restablecer posición inicial
     bolita.vel = createVector(0, 0); // Restablecer velocidad
     bolita.disparada = false; // Permitir otro disparo
     mostrarFallo = true; //Mostrar anuncio de fallaste
@@ -370,7 +375,7 @@ function verificarColision() {
     tiempoInicioNuevaImg = millis(); // Guardar el tiempo de inicio de la nueva imagen
 
     // Restablece la posición de la bolita
-    bolita.pos = createVector(width / 2, height / 2);
+    bolita.pos = createVector(width / 2, height -80);
     bolita.vel = createVector(0, 0);
     bolita.disparada = false;
   }
