@@ -7,13 +7,14 @@ let socket = io(laurl, {
   path: "/real-time",
 });
 
-// valores base de las teclas
+// Variables de movimiento con las teclas
 let movingLeft = false;
 let movingRight = false;
 let movingUp = false;
 let movingDown = false;
+
+// Variables de cheester
 let x, y; // Coordenadas de la imagen
-let tiempoInicio;
 let velocidadX = 10; // Velocidad inicial en el eje X en píxeles por milisegundo
 let tamanoImagen = 150; // Tamaño de la imagen en píxeles (ancho y alto)
 let direccion = 1; // Dirección del movimiento (1 para derecha, -1 para izquierda)
@@ -22,68 +23,68 @@ let nuevaImg; // Variable para la nueva imagen
 let mostrarNuevaImagen = false; // Variable para controlar si se debe mostrar la nueva imagen
 let tiempoInicioNuevaImg; // Variable para el tiempo de inicio de la nueva imagen
 let imgCheto; //Variable del boliqueso
-let shooter; //Variable del cañon
 
+// Variables de la mira
+let shooter; //Variable del cañonlet mira;
+let miraDirection = 1;
+let velocidadDisparo = 29;
+let anchoMira; // Agregado para almacenar el ancho de la mira
+let altoMira; // Agregado para almacenar el alto de la mira
 
-// Sonidos
+// Variables del juego
+let tiempoInicio;
+let puntaje = 0; // Variable para el puntaje
+let mostrarBien = false; // Variable para controlar el aviso "Bien!"
+let bienTimer = 30; // Duración del aviso en cuadros (medio segundo)
+let mostrarFallo = false; // Variable para controlar el aviso "Intenta de nuevo!"
+let FalloTimer = 30; // Duración del aviso en cuadros (medio segundo)
+let tiempoTranscurrido = 0;
+let juegoDetenido = false; // Variable para controlar si el juego se detuvo
+let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
+let tiempoRestante = tiempoJuego - tiempoTranscurrido;
+
+// Variable para la fuente personalizada
+let customFont;
+
+// Variables de los sonidos
 let sonidoColision;
 let endsound;
 let failshoot;
 let musicaFondo;
 
-// PHONE
+// Variable de la bolita (boliqueso)
 let bolita;
-let mira;
-let miraDirection = 1;
-let velocidadDisparo = 29;
-//JOYSTICK
+
+//Variables del JOYSTICK
 let miradisparo;
 let posx;
 let posy;
 let button;
 let velocidad = 20;
 
-let puntaje = 0; // Variable para el puntaje
-let customFont; // Variable para la fuente personalizada
-
-let mostrarBien = false; // Variable para controlar el aviso "Bien!"
-let bienTimer = 30; // Duración del aviso en cuadros (medio segundo)
-
-let mostrarFallo = false; // Variable para controlar el aviso "Intenta de nuevo!"
-let FalloTimer = 30; // Duración del aviso en cuadros (medio segundo)
-
-let tiempoTranscurrido = 0;
-let juegoDetenido = false; // Variable para controlar si el juego se detuvo
-let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
-let tiempoRestante = tiempoJuego - tiempoTranscurrido;
-
-let anchoMira; // Agregado para almacenar el ancho de la mira
-let altoMira; // Agregado para almacenar el alto de la mira
-
-
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
-  miradisparo = loadImage('mira.png');
-  fondoMupi = loadImage('fondoMupi.jpg')
+  miradisparo = loadImage('./images/mira.png');
+  fondoMupi = loadImage('./images/fondoMupi.jpg')
 
-  nuevaImg = loadImage('chesterAcierto.png');
-  img = loadImage('chesterb.png');
-  imgCheto = loadImage('boliqueso.png');
-  shooter = loadImage('canon.png')
+  nuevaImg = loadImage('./images/chesterAcierto.png');
+  img = loadImage('./images/chesterb.png');
+  imgCheto = loadImage('./images/boliqueso.png');
+  shooter = loadImage('./images/canon.png')
 
   // Carga el sonidos
   soundFormats('mp3', 'ogg');
-  sonidoColision = loadSound('acierto.mp3');
-  endsound = loadSound('chester.mp3')
-  failshoot = loadSound('fail.mp3')
-  musicaFondo = loadSound('FondoMusic.mp3');
+  sonidoColision = loadSound('./sounds/acierto.mp3');
+  endsound = loadSound('./sounds/chester.mp3')
+  failshoot = loadSound('./sounds/fail.mp3')
+  musicaFondo = loadSound('./sounds/FondoMusic.mp3');
   musicaFondo.setVolume(0.3);
 
   // Carga la fuente personalizada
-  customFont = loadFont('CHEESEBU.ttf'); 
+  customFont = loadFont('./typography/CHEESEBU.ttf');
 
-   // Carga la imagen de la mira
-   miradisparo = loadImage('mira.png', img => {
+  // Carga la imagen de la mira
+  miradisparo = loadImage('./images/mira.png', img => {
     // Redimensiona la imagen para que tenga un tamaño más manejable
     anchoMira = 60; // ajusta el ancho a tu preferencia
     altoMira = (img.height / img.width) * anchoMira; // mantiene la proporción original
@@ -110,7 +111,7 @@ function setup() {
   nuevaImg.resize(tamanoImagen, tamanoImagen);
 
   // Disparo
-  bolita = new Bolita(width / 2, height -80);
+  bolita = new Bolita(width / 2, height - 80);
   mira = new Mira();
   console.log("La posición de la mira en setup es:", posx, posy);
 }
@@ -150,7 +151,7 @@ class Mira {
   }
 
   update() {
-  //sí, aquí tampoco va nada--
+    //sí, aquí tampoco va nada--
   }
 
   display() {
@@ -197,7 +198,7 @@ function draw() {
     //Fondo del mupi
     image(fondoMupi, 0, 0, width, height)
 
-    
+
     //====================================================================
     drawPhone();
     drawCheetos();
@@ -205,15 +206,15 @@ function draw() {
     // Verifica la colisión
     verificarColision();
 
-     // Llama a la función update()
-     update();
+    // Llama a la función update()
+    update();
 
     // Mostrar puntaje actual
     textFont(customFont); // Establece la fuente personalizada
     textSize(38); // Tamaño del texto
     fill(19, 29, 44); // Color del texto
     textAlign(LEFT);
-    text(`Score: ${puntaje} `, 20, windowHeight-90); // Dibuja el texto del puntaje
+    text(`Score: ${puntaje} `, 20, windowHeight - 90); // Dibuja el texto del puntaje
 
     tiempoTranscurrido = millis() - tiempoInicio;
     tiempoRestante = tiempoJuego - tiempoTranscurrido;
@@ -223,7 +224,7 @@ function draw() {
     textSize(38);
     fill(19, 29, 44);
     textAlign(LEFT);
-    text(`Time Left: ${segundosRestantes} seconds`, 20, windowHeight-50); // Muestra el tiempo restante
+    text(`Time Left: ${segundosRestantes} seconds`, 20, windowHeight - 50); // Muestra el tiempo restante
 
     if (mostrarBien) {
       textSize(60); // Tamaño del texto del aviso
@@ -257,7 +258,7 @@ function draw() {
     //===================================================================
     //Acomodar imáagen al centro de posx y posy
     image(miradisparo, posx - anchoMira / 2, posy - altoMira / 2, anchoMira, altoMira);
-    image(shooter, windowWidth/2.18, windowHeight-70)
+    image(shooter, windowWidth / 2.18, windowHeight - 70)
 
 
     // Controla la duración del aviso "Bien!"
@@ -292,8 +293,8 @@ function draw() {
     endsound.play();
     musicaFondo.stop();
   }
-   // Mover el objeto si las teclas están presionadas
-   if (movingLeft) {
+  // Mover el objeto si las teclas están presionadas
+  if (movingLeft) {
     posx -= velocidad;
   }
   if (movingRight) {
@@ -303,8 +304,8 @@ function draw() {
     posy -= velocidad;
   }
   if (movingDown) {
-    posy += velocidad;
-  }
+    posy += velocidad;
+  }
 }
 
 
@@ -319,19 +320,19 @@ function update() {
     direccion = 1; // Cambia la dirección a derecha
   }
 
-// Restringe el movimiento de la mira en el eje X
-if (posx + 57 > width) {
-  posx = width - 57; // Ajusta la posición para que no se salga a la derecha
-} else if (posx < 57) {
-  posx = 57; // Ajusta la posición para que no se salga a la izquierda
-}
+  // Restringe el movimiento de la mira en el eje X
+  if (posx + 57 > width) {
+    posx = width - 57; // Ajusta la posición para que no se salga a la derecha
+  } else if (posx < 57) {
+    posx = 57; // Ajusta la posición para que no se salga a la izquierda
+  }
 
-// Restringe el movimiento de la mira en el eje Y
-if (posy + 57 > height) {
-  posy = height - 57; // Ajusta la posición para que no se salga hacia abajo
-} else if (posy < 57) {
-  posy = 57; // Ajusta la posición para que no se salga hacia arriba
-}
+  // Restringe el movimiento de la mira en el eje Y
+  if (posy + 57 > height) {
+    posy = height - 57; // Ajusta la posición para que no se salga hacia abajo
+  } else if (posy < 57) {
+    posy = 57; // Ajusta la posición para que no se salga hacia arriba
+  }
 }
 
 //COORDENADAS DEL JOYSTICK
@@ -352,7 +353,7 @@ function drawPhone() {
   bolita.display();
 
   if (bolita.pos.x < 0 || bolita.pos.x > width || bolita.pos.y < 0 || bolita.pos.y > height) {
-    bolita.pos = createVector(width / 2, height -80); // Restablecer posición inicial
+    bolita.pos = createVector(width / 2, height - 80); // Restablecer posición inicial
     bolita.vel = createVector(0, 0); // Restablecer velocidad
     bolita.disparada = false; // Permitir otro disparo
     mostrarFallo = true; //Mostrar anuncio de fallaste
@@ -375,7 +376,7 @@ function verificarColision() {
     tiempoInicioNuevaImg = millis(); // Guardar el tiempo de inicio de la nueva imagen
 
     // Restablece la posición de la bolita
-    bolita.pos = createVector(width / 2, height -80);
+    bolita.pos = createVector(width / 2, height - 80);
     bolita.vel = createVector(0, 0);
     bolita.disparada = false;
   }
@@ -415,7 +416,7 @@ function keyReleased() {
 }
 
 //Listen to event "registro" from phone
-socket.on("registro", (register) =>{
+socket.on("registro", (register) => {
 
   username = register.username;
   email = register.email;
