@@ -40,7 +40,7 @@ let mostrarFallo = false; // Variable para controlar el aviso "Intenta de nuevo!
 let FalloTimer = 30; // Duración del aviso en cuadros (medio segundo)
 let tiempoTranscurrido = 0;
 let juegoDetenido = false; // Variable para controlar si el juego se detuvo
-let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
+let tiempoJuego = 40 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 
 // Variable para la fuente personalizada
@@ -51,6 +51,7 @@ let sonidoColision;
 let endsound;
 let failshoot;
 let musicaFondo;
+let cannonBoom;
 
 // Variable de la bolita (boliqueso)
 let bolita;
@@ -64,7 +65,6 @@ let velocidad = 20;
 
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
-  miradisparo = loadImage('./images/mira.png');
   fondoMupi = loadImage('./images/fondoMupi.jpg')
 
   nuevaImg = loadImage('./images/chesterAcierto.png');
@@ -79,6 +79,8 @@ function preload() {
   failshoot = loadSound('./sounds/fail.mp3')
   musicaFondo = loadSound('./sounds/FondoMusic.mp3');
   musicaFondo.setVolume(0.3);
+  cannonBoom = loadSound('./sounds/cannon.mp3')
+  cannonBoom.setVolume(0.2);
 
   // Carga la fuente personalizada
   customFont = loadFont('./typography/CHEESEBU.ttf');
@@ -141,6 +143,7 @@ class Bolita {
       const direccion = createVector(posx - this.pos.x, posy - this.pos.y).normalize();
       this.vel = direccion.mult(velocidadDisparo); // Establece la velocidad de disparo
       this.disparada = true;
+      cannonBoom.play();
     }
   }
 }
