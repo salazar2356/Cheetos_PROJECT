@@ -34,15 +34,12 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("Connected!", socket.id);
 
-//6.the server listens to the event "sending-color" and broadcasts the message to the event "receiving-color"
+//6.the server listens to the event "registro" and broadcasts the message to the event "data-user"
 
-  socket.on("sending-color", (message) => {
-    socket.broadcast.emit("receiving-color", message);
-  });
+socket.on("registro", (message) => {
+  socket.broadcast.emit("data-user", message);
+ });
 });
-
-//====================================================
-
 
 //7.Set the rules for the serial communication
 // Opens a port
@@ -57,7 +54,7 @@ port.on('error', (err) => {
   console.error('Error en el puerto serial:', err.message);
 });
 
-//--------------------------------------- 2- 
+//======================================================================================================
 //Pasar Parsing, de strings a numeros
 //Se se paran las posiciónes de los valores de los strings para poder leerlos y manipularlos
 //Metodo (SPLIT): 
@@ -75,7 +72,7 @@ parser.on('data', (data) => {
      button: parseInt(formatedData[2])
   }
   
-  //console.log(neededData);
+//console.log(neededData);
  
   io.emit('joystick', neededData)
 })

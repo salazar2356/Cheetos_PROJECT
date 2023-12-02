@@ -3,30 +3,20 @@ const DNS = getDNS;
 
 //Import socket to listen or send messages using events.
 const laurl = `http://${window.location.hostname}:5050`;
-let socket = io( laurl, {
-  path: "/real-time",
-});
-
-const button = document.getElementById('btnPressed')
-
-button.addEventListener('click', (e) => {
-  const register = {username:"X", email: "x@gmail.com" }
-
-  socket.emit("registro", register)
-  
-})
+let socket = io( laurl, {path: "/real-time"});
 
 //========================
+//Obtiene elementos "inputs"
 
-function radioButtonClick() {
+const btnSend = document.getElementById('submit')
+const inputUsername = document.getElementById("username")
+const inputEmail = document.getElementById("email")
+//Función para pintar en consola los datos del User a través de Socket 
 
-    console.log("click");
-    const color = {
-      r: 1,
-      g: 2,
-      b: 255,
-    };
+btnSend.addEventListener('click', (e) => {
+  const register = { username: inputUsername.value, email: inputEmail.value }
+  console.log("Usuario registrado correctamente");
 
-    //Emit the message to the server with the event "sending-color"
-    socket.emit("sending-color", color);
-}
+  socket.emit("registro", register)
+})
+
