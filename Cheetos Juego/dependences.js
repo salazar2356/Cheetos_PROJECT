@@ -6,4 +6,4 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import bodyParser from 'body-parser';
 
-export {express, Server, cors, SerialPort, ReadlineParser, dotenv, fs, bodyParser};
+export { express, Server, cors, SerialPort, ReadlineParser, dotenv, fs, bodyParser };

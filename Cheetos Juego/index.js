@@ -44,6 +44,10 @@ io.on("connection", (socket) => {
     // Luego, puedes broadcastear el mensaje a los clientes
     socket.broadcast.emit("data-user", message);
   });
+
+  socket.on("save-score", (scoreCurrent) => {
+    socket.emit("score-user", scoreCurrent)
+  })
 });
 
 // 7. Set the rules for serial communication

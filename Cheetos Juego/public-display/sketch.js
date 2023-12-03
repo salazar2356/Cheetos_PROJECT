@@ -67,11 +67,10 @@ let posy;
 let button;
 let velocidad = 20;
 
-
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
   miradisparo = loadImage('./images/mira.png');
-  fondoMupi = loadImage('./images/fondoMupi.jpg')
+  fondoMupi = loadImage('./images/fondoMupi.png')
 
   nuevaImg = loadImage('./images/chesterAcierto.png');
   img = loadImage('./images/chesterb.png');
@@ -89,10 +88,10 @@ function preload() {
   cannonBoom.setVolume(0.2);
 
   // Carga la fuente personalizada
-  customFont = loadFont('./typography/CHEESEBU.ttf'); 
+  customFont = loadFont('./typography/CHEESEBU.ttf');
 
-   // Carga la imagen de la mira
-   miradisparo = loadImage('./images/mira.png', img => {
+  // Carga la imagen de la mira
+  miradisparo = loadImage('./images/mira.png', img => {
     // Redimensiona la imagen para que tenga un tamaño más manejable
     anchoMira = 60; // ajusta el ancho a tu preferencia
     altoMira = (img.height / img.width) * anchoMira; // mantiene la proporción original
@@ -119,7 +118,7 @@ function setup() {
   nuevaImg.resize(tamanoImagen, tamanoImagen);
 
   // Disparo
-  bolita = new Bolita(width / 2, height -80);
+  bolita = new Bolita(width / 2, height - 80);
   mira = new Mira();
   console.log("La posición de la mira en setup es:", posx, posy);
 }
@@ -160,7 +159,7 @@ class Mira {
   }
 
   update() {
-  //sí, aquí tampoco va nada--
+    //sí, aquí tampoco va nada--
   }
 
   display() {
@@ -175,7 +174,7 @@ class Mira {
 
 socket.on('joystick', message => {
   const { x, y, button } = message;
- // console.log("recibido: ", message);
+  // console.log("recibido: ", message);
 
   if (x > 500) {
     posx -= velocidad
@@ -206,7 +205,7 @@ function draw() {
     //Fondo del mupi
     image(fondoMupi, 0, 0, width, height)
 
-    
+
     //====================================================================
     drawPhone();
     drawCheetos();
@@ -214,15 +213,15 @@ function draw() {
     // Verifica la colisión
     verificarColision();
 
-     // Llama a la función update()
-     update();
+    // Llama a la función update()
+    update();
 
     // Mostrar puntaje actual
     textFont(customFont); // Establece la fuente personalizada
     textSize(38); // Tamaño del texto
     fill(19, 29, 44); // Color del texto
     textAlign(LEFT);
-    text(`Score: ${puntaje} `, 20, windowHeight-90); // Dibuja el texto del puntaje
+    text(`Score: ${puntaje} `, 20, windowHeight - 90); // Dibuja el texto del puntaje
 
     tiempoTranscurrido = millis() - tiempoInicio;
     tiempoRestante = tiempoJuego - tiempoTranscurrido;
@@ -232,7 +231,7 @@ function draw() {
     textSize(38);
     fill(19, 29, 44);
     textAlign(LEFT);
-    text(`Time Left: ${segundosRestantes} seconds`, 20, windowHeight-50); // Muestra el tiempo restante
+    text(`Time Left: ${segundosRestantes} seconds`, 20, windowHeight - 50); // Muestra el tiempo restante
 
     if (mostrarBien) {
       textSize(60); // Tamaño del texto del aviso
@@ -266,7 +265,7 @@ function draw() {
     //===================================================================
     //Acomodar imáagen al centro de posx y posy
     image(miradisparo, posx - anchoMira / 2, posy - altoMira / 2, anchoMira, altoMira);
-    image(shooter, windowWidth/2.18, windowHeight-70)
+    image(shooter, windowWidth / 2.18, windowHeight - 70)
 
 
     // Controla la duración del aviso "Bien!"
@@ -285,38 +284,38 @@ function draw() {
       }
     }
   } else {
-        // Verifica si ya se ha enviado la información al servidor
-        if (!registroEnviado) {
-            // Envía la información al servidor
-            const scoreData = {score: puntaje };
-            const url = `http://${window.location.hostname}:5050/save-score`;
+    // Verifica si ya se ha enviado la información al servidor
+    if (!registroEnviado) {
+      // Envía la información al servidor
+      const scoreData = { score: puntaje };
+      const url = `http://${window.location.hostname}:5050/save-score`;
 
-            // Utilizamos la función fetch para enviar los datos al servidor
-            fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(scoreData),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Score saved:', data);
-                    // Marca la variable como verdadera para evitar enviar la información repetidamente
-                    registroEnviado = true;
-                })
-                .catch(error => console.error('Error saving score:', error));
-        }
+      // Utilizamos la función fetch para enviar los datos al servidor
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scoreData),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Score saved:', data);
+          // Marca la variable como verdadera para evitar enviar la información repetidamente
+          registroEnviado = true;
+        })
+        .catch(error => console.error('Error saving score:', error));
+    }
 
-      background(0); // Fondo negro
-      textSize(50);
-      fill(255);
-      textAlign(CENTER, CENTER);
-      text(`That's all! Your score: ${puntaje}`, width / 2, height / 2);
+    background(0); // Fondo negro
+    textSize(50);
+    fill(255);
+    textAlign(CENTER, CENTER);
+    text(`That's all! Your score: ${puntaje}`, width / 2, height / 2);
 
-      // Almacena el puntaje en localStorage
-      localStorage.setItem('puntaje', puntaje);
-        }
+    // Almacena el puntaje en localStorage
+    localStorage.setItem('puntaje', puntaje);
+  }
 
 
   tiempoTranscurrido = millis() - tiempoInicio;
@@ -326,9 +325,10 @@ function draw() {
     juegoDetenido = true;
     endsound.play();
     musicaFondo.stop();
+    socket.emit("save-score")
   }
-   // Mover el objeto si las teclas están presionadas
-   if (movingLeft) {
+  // Mover el objeto si las teclas están presionadas
+  if (movingLeft) {
     posx -= velocidad;
   }
   if (movingRight) {
@@ -338,8 +338,8 @@ function draw() {
     posy -= velocidad;
   }
   if (movingDown) {
-    posy += velocidad;
-  }
+    posy += velocidad;
+  }
 }
 
 function update() {
@@ -352,19 +352,19 @@ function update() {
     direccion = 1; // Cambia la dirección a derecha
   }
 
-// Restringe el movimiento de la mira en el eje X
-if (posx + 57 > width) {
-  posx = width - 57; // Ajusta la posición para que no se salga a la derecha
-} else if (posx < 57) {
-  posx = 57; // Ajusta la posición para que no se salga a la izquierda
-}
+  // Restringe el movimiento de la mira en el eje X
+  if (posx + 57 > width) {
+    posx = width - 57; // Ajusta la posición para que no se salga a la derecha
+  } else if (posx < 57) {
+    posx = 57; // Ajusta la posición para que no se salga a la izquierda
+  }
 
-// Restringe el movimiento de la mira en el eje Y
-if (posy + 57 > height) {
-  posy = height - 57; // Ajusta la posición para que no se salga hacia abajo
-} else if (posy < 57) {
-  posy = 57; // Ajusta la posición para que no se salga hacia arriba
-}
+  // Restringe el movimiento de la mira en el eje Y
+  if (posy + 57 > height) {
+    posy = height - 57; // Ajusta la posición para que no se salga hacia abajo
+  } else if (posy < 57) {
+    posy = 57; // Ajusta la posición para que no se salga hacia arriba
+  }
 }
 
 //COORDENADAS DEL JOYSTICK
@@ -385,7 +385,7 @@ function drawPhone() {
   bolita.display();
 
   if (bolita.pos.x < 0 || bolita.pos.x > width || bolita.pos.y < 0 || bolita.pos.y > height) {
-    bolita.pos = createVector(width / 2, height -80); // Restablecer posición inicial
+    bolita.pos = createVector(width / 2, height - 80); // Restablecer posición inicial
     bolita.vel = createVector(0, 0); // Restablecer velocidad
     bolita.disparada = false; // Permitir otro disparo
     mostrarFallo = true; //Mostrar anuncio de fallaste
@@ -408,7 +408,7 @@ function verificarColision() {
     tiempoInicioNuevaImg = millis(); // Guardar el tiempo de inicio de la nueva imagen
 
     // Restablece la posición de la bolita
-    bolita.pos = createVector(width / 2, height -80);
+    bolita.pos = createVector(width / 2, height - 80);
     bolita.vel = createVector(0, 0);
     bolita.disparada = false;
   }
@@ -446,13 +446,3 @@ function keyReleased() {
     movingDown = false;
   }
 }
-
-//Listen to event "registro" from phone
-socket.on("data-user", (register) => {
-
-  console.log({
-    "username:": register.username,
-    "email:": register.email,
-    "puntaje": puntaje}
-  );
-})

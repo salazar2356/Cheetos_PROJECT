@@ -2,28 +2,58 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cheetos OOH</title>
-    <link rel="stylesheet" href="./style.css">    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheetos OOH</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-  <script
-  src="https://cdn.socket.io/4.5.0/socket.io.min.js"
-  integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
-  crossorigin="anonymous"
-></script>
-<script>
-  const getDNS = "<%= DNS %>"
-</script>
+  <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+    integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+    crossorigin="anonymous"></script>
+  <script>
+    const getDNS = "<%= DNS %>"
+  </script>
+  <div id="gif-mupi">
+    <!-- gif de las instrucciones -->
+    <img src="./resources/GifCheetoProject.gif">
 
-    <div id="gif-mupi">
-        <img src="./resources/GifCheetoProject.gif">
+    <!-- Tabla de ranking -->
+    <div class="contenedorRanking">
+      <div class="title">
+        <h1>The best cheesters</h1>
+      </div>
+      <div class="Tabla">
+        <table class="tablaClasificacion">
+          <tbody class="bodytable">
+            <tr class="headers">
+              <td class="positionCol">1</td>
+              <td class="usernameCol">Username</td>
+              <td class="scoreCol">Score</td>
+            </tr>
+            <tr class="userData">
+              <td class="positionCol">2</td>
+              <td class="usernameCol">Username</td>
+              <td class="scoreCol">Score</td>
+            </tr>
+            <tr class="headers">
+              <td class="positionCol">3</td>
+              <td class="usernameCol">Username</td>
+              <td class="scoreCol">Score</td>
+            </tr>
+            <tr class="userData">
+              <td class="positionCol">4</td>
+              <td class="usernameCol">Username</td>
+              <td class="scoreCol">Score</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
-
-    <script src="./sketch.js"  async defer></script>
+  </div>
+  <script src="./sketch.js" async defer></script>
 </body>
 
 </html>
