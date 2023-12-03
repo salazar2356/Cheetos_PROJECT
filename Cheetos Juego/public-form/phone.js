@@ -1,22 +1,32 @@
-//Get DNS from the URL
+// Get DNS from the URL
 const DNS = getDNS;
 
-//Import socket to listen or send messages using events.
+// Import socket to listen or send messages using events.
 const laurl = `http://${window.location.hostname}:5050`;
-let socket = io( laurl, {path: "/real-time"});
+let socket = io(laurl, { path: "/real-time" });
 
-//========================
-//Obtiene elementos "inputs"
+// ========================
+// Obtiene elementos "inputs"
 
-const btnSend = document.getElementById('submit')
-const inputUsername = document.getElementById("username")
-const inputEmail = document.getElementById("email")
-//Función para pintar en consola los datos del User a través de Socket 
+document.getElementById("submit").addEventListener('click', function(e){
+    e.preventDefault();
+    
+    // Obtiene el puntaje almacenado en localStorage
+    const puntaje = localStorage.getItem('puntaje');
+    
+    // Verifica si hay un puntaje almacenado antes de enviarlo a Firebase
+    if (puntaje) {
+        // Agrega el puntaje al objeto de registro
+        const register = { 
+            username: document.getElementById("username").value, 
+            email: document.getElementById("email").value, 
+            score: puntaje 
+        };
 
-btnSend.addEventListener('click', (e) => {
-  const register = { username: inputUsername.value, email: inputEmail.value }
-  console.log("Usuario registrado correctamente");
+        console.log('Enviando registro al servidor:', register);
 
-  socket.emit("registro", register)
-})
+        // Emitir el evento "registro" con los datos del usuario y el puntaje
+        socket.emit("registro", register);
+    }
+});
 

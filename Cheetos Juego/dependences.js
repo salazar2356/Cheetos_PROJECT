@@ -4,5 +4,6 @@ import cors from 'cors';
 import { SerialPort, ReadlineParser } from 'serialport';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import bodyParser from 'body-parser';
 
-export {express, Server, cors, SerialPort, ReadlineParser, dotenv, fs};
+export {express, Server, cors, SerialPort, ReadlineParser, dotenv, fs, bodyParser};

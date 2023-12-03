@@ -60,17 +60,28 @@
   const db = getDatabase(app);
 
   document.getElementById("submit").addEventListener('click', function(e){
-    e.preventDefault()
-    set(ref(db, 'user/' + document.getElementById("username").value),
-    {
-        username: document.getElementById("username").value,
-        email: document.getElementById("email").value,
-        
+  e.preventDefault()
 
-    });
+  // Obtiene el puntaje almacenado en localStorage
+  const puntaje = localStorage.getItem('puntaje');
 
-    alert("Login Sucessfull!")
-  })
+  console.log('Datos del formulario:', {
+    username: document.getElementById("username").value,
+    email: document.getElementById("email").value,
+    score: puntaje
+  });
+
+  set(ref(db, 'user/' + document.getElementById("username").value), {
+    username: document.getElementById("username").value,
+    email: document.getElementById("email").value,
+    score: puntaje 
+  });
+
+  alert("Login Sucessfull! (check console log)")
+  
+        // Borra el puntaje almacenado después de enviarlo
+        localStorage.removeItem('puntaje');
+});
     </script>
     
 

@@ -43,8 +43,9 @@ let mostrarFallo = false; // Variable para controlar el aviso "Intenta de nuevo!
 let FalloTimer = 30; // Duración del aviso en cuadros (medio segundo)
 let tiempoTranscurrido = 0;
 let juegoDetenido = false; // Variable para controlar si el juego se detuvo
-let tiempoJuego = 40 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
+let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
+let registroEnviado = false;
 
 // Variable para la fuente personalizada
 let customFont;
@@ -284,13 +285,39 @@ function draw() {
       }
     }
   } else {
-    // Muestra solo el puntaje cuando el juego está detenido
-    background(0); // Fondo negro
-    textSize(50);
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(`That's all! Your score: ${puntaje}`, width / 2, height / 2); // Muestra el puntaje en el centro
-  }
+        // Verifica si ya se ha enviado la información al servidor
+        if (!registroEnviado) {
+            // Envía la información al servidor
+            const scoreData = {score: puntaje };
+            const url = `http://${window.location.hostname}:5050/save-score`;
+
+            // Utilizamos la función fetch para enviar los datos al servidor
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(scoreData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Score saved:', data);
+                    // Marca la variable como verdadera para evitar enviar la información repetidamente
+                    registroEnviado = true;
+                })
+                .catch(error => console.error('Error saving score:', error));
+        }
+
+      background(0); // Fondo negro
+      textSize(50);
+      fill(255);
+      textAlign(CENTER, CENTER);
+      text(`That's all! Your score: ${puntaje}`, width / 2, height / 2);
+
+      // Almacena el puntaje en localStorage
+      localStorage.setItem('puntaje', puntaje);
+        }
+
 
   tiempoTranscurrido = millis() - tiempoInicio;
 
@@ -425,6 +452,7 @@ socket.on("data-user", (register) => {
 
   console.log({
     "username:": register.username,
-    "email:": register.email}
+    "email:": register.email,
+    "puntaje": puntaje}
   );
 })
