@@ -15,10 +15,9 @@ document.getElementById("llama_Menu3").addEventListener('click', function (e) {
     const puntaje = localStorage.getItem('puntaje');
     const usernameValue = document.getElementById("username").value;
     const emailValue = document.getElementById("email").value;
-
     // Verifica si hay un puntaje almacenado antes de enviarlo a Firebase
     if (puntaje) {
-        window.location.href = 'https://6b48-181-68-150-159.ngrok-free.app/home';
+      //  window.location.href = 'https://6b48-181-68-150-159.ngrok-free.app/home';
 
         // Agrega el puntaje al objeto de registro
         const register = {
@@ -31,5 +30,7 @@ document.getElementById("llama_Menu3").addEventListener('click', function (e) {
 
         // Emitir el evento "registro" con los datos del usuario y el puntaje
         socket.emit("registro", register);
+        socket.emit("screen-change")
+
     }
 });

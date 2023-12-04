@@ -72,7 +72,7 @@ function preload() {
   // Carga las imagenes antes de ejecutar el sketch
   miradisparo = loadImage('./images/mira.png');
   fondoMupi = loadImage('./images/fondoMupi.png')
-  qr = loadImage('./images/qr.jpeg')
+  qr = loadImage('./images/qr.png')
 
   nuevaImg = loadImage('./images/chesterAcierto.png');
   img = loadImage('./images/chesterb.png');
@@ -198,6 +198,10 @@ socket.on('joystick', message => {
   }
 })
 
+socket.on("changed", () =>{
+  window.location.href = 'https://74a7-181-68-150-159.ngrok-free.app/home/';
+})
+
 
 function draw() {
   //Mostrar el juego (no-detenido)
@@ -313,9 +317,9 @@ function draw() {
     textSize(50);
     fill(255);
     textAlign(CENTER, CENTER);
-    text(`That's all! Your score: ${puntaje}`, width / 2, height / 2);
-    text(`Scan me`,windowHeight, -90);
-    image(qr, 10, 10, windowHeight, -90)
+    text(`That's all! Your score: ${puntaje}`, width / 2, height / 1.6);
+    text(`Scan me`,width / 2, 85);
+    image(qr, width / 2.25, 150)
 
 
     // Almacena el puntaje en localStorage
@@ -326,7 +330,7 @@ function draw() {
   tiempoTranscurrido = millis() - tiempoInicio;
 
   //Detener el juego a x milisegundos
-  if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
+  if (tiempoTranscurrido >= 5000 && !juegoDetenido) {
     juegoDetenido = true;
     endsound.play();
     musicaFondo.stop();

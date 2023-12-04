@@ -45,6 +45,10 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("data-user", message);
   });
 
+  socket.on("screen-change", () =>{
+    socket.broadcast.emit("changed")
+  })
+
   socket.on("dataScoreRanking", (data) => {
     socket.broadcast.emit("scoreRanking", data)
   })

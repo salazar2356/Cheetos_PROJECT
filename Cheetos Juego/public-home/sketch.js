@@ -18,8 +18,8 @@ socket.on('joystick', message => {
   console.log("recibido: ", message);
 
   if (button === 0) {
-    // Direction to DISPLAY SCREEN
-    window.location.href = 'https://6b48-181-68-150-159.ngrok-free.app/display';
+    // Direction to DISPLAY SCcREEN
+    window.location.href = 'https://74a7-181-68-150-159.ngrok-free.app/display/';
   }
 })
 
@@ -33,6 +33,8 @@ socket.on("data-user", (register) => {
 })
 
 socket.on("scoreRanking", (dataUserScore) => {
+  console.log(dataUserScore);
+
   // Crear nueva fila para la tabla
   const newRow = document.createElement("tr");
   newRow.classList.add("headers")
