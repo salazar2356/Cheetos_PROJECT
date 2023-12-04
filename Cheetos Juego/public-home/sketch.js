@@ -1,5 +1,5 @@
 //Escucha el mensaje del server
-const laurl = `http://${window.location.hostname}:5051`;
+const laurl = `${window.location.hostname}`;
 
 let socket = io(laurl, {
   path: "/real-time",
@@ -19,7 +19,7 @@ socket.on('joystick', message => {
 
   if (button === 0) {
     // Direction to DISPLAY SCREEN
-    window.location.href = 'http://localhost:5051/display/';
+    window.location.href = 'https://6b48-181-68-150-159.ngrok-free.app/display';
   }
 })
 

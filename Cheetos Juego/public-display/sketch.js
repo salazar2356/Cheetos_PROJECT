@@ -2,7 +2,7 @@
 const DNS = getDNS;
 
 //Import socket to listen or send messages using events.
-const laurl = `http://${window.location.hostname}:5051`;
+const laurl = `${window.location.hostname}`;
 let socket = io(laurl, {
   path: "/real-time",
 });
@@ -46,6 +46,7 @@ let juegoDetenido = false; // Variable para controlar si el juego se detuvo
 let tiempoJuego = 50 * 1000; // Duración total del juego en milisegundos (en este caso, 50 segundos) Esto se puede cambiar abajo
 let tiempoRestante = tiempoJuego - tiempoTranscurrido;
 let registroEnviado = false;
+let qr;
 
 // Variable para la fuente personalizada
 let customFont;
@@ -71,6 +72,7 @@ function preload() {
   // Carga las imagenes antes de ejecutar el sketch
   miradisparo = loadImage('./images/mira.png');
   fondoMupi = loadImage('./images/fondoMupi.png')
+  qr = loadImage('./images/qr.jpeg')
 
   nuevaImg = loadImage('./images/chesterAcierto.png');
   img = loadImage('./images/chesterb.png');
@@ -312,6 +314,9 @@ function draw() {
     fill(255);
     textAlign(CENTER, CENTER);
     text(`That's all! Your score: ${puntaje}`, width / 2, height / 2);
+    text(`Scan me`,windowHeight, -90);
+    image(qr, 10, 10, windowHeight, -90)
+
 
     // Almacena el puntaje en localStorage
     localStorage.setItem('puntaje', puntaje);
