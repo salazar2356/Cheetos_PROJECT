@@ -160,13 +160,16 @@
   <!--Fin Seccion de qr-->
 
   <script type="module">
+    // Import socket to listen or send messages using events.
+    const laurl = `http://${window.location.hostname}:5051`;
+    let socket = io(laurl, { path: "/real-time" });
+
     // Firebase
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-    import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+    import { getDatabase, ref, set, get, child, push } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
     // Your web app's Firebase configuration
-
     const firebaseConfig = {
       apiKey: "AIzaSyDwtT-vcCXTQ3MwO4XeqdyMtvvOS8bXE_I",
       authDomain: "database-cheetos.firebaseapp.com",
@@ -181,7 +184,6 @@
     const app = initializeApp(firebaseConfig);
 
     //get ref to database services
-
     const db = getDatabase(app);
 
     document.getElementById("llama_Menu3").addEventListener('click', function (e) {
@@ -198,13 +200,10 @@
       // Obtiene el puntaje almacenado en localStorage
       const puntaje = localStorage.getItem('puntaje');
 
-      console.log('Datos del formulario:', {
-        username: usernameValue,
-        email: emailValue,
-        score: puntaje
-      });
+      // Genera una nueva referencia con un ID único
+      const newUserRef = push(ref(db, 'user'));
 
-      set(ref(db, 'user/' + usernameValue), {
+      set(newUserRef, {
         username: usernameValue,
         email: emailValue,
         score: puntaje
@@ -214,6 +213,33 @@
 
       // Borra el puntaje almacenado después de enviarlo
       localStorage.removeItem('puntaje');
+
+      const dbRef = ref(getDatabase());
+
+      const usersRef = child(dbRef, 'user');
+
+      // Obtener los datos de todos los usuarios
+      get(usersRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          // Recorremos todos los nodos de usuarios
+          snapshot.forEach((childSnapshot) => {
+            const userId = childSnapshot.key; // Obtener el ID único de cada usuario
+            const userData = childSnapshot.val(); // Datos del usuario
+
+            // Acceder a los campos específicos que deseas obtener
+            const usernameData = userData.username;
+            const scoreData = userData.score;
+
+            const dataRanking = [usernameData, scoreData]
+            socket.emit("dataScoreRanking", dataRanking)
+          })
+
+        } else {
+          console.log("No data available");
+        }
+      }).catch((error) => {
+        console.error(error);
+      });
 
       // Cambio a Menu1-d después de completar la escritura en la base de datos
       $("#Menu1-d").css("display", "block");

@@ -5,7 +5,7 @@ import { express, Server, cors, SerialPort, ReadlineParser, dotenv, bodyParser }
 // ISA CAMBIOS SOCKET TUTO
 // 2. Set the server's configuration with EXPRESS===============================
 
-const PORT = 5050;
+const PORT = 5051;
 const expressApp = express();
 expressApp.use(cors({ origin: "*" }));
 expressApp.use(bodyParser.json());  // Utiliza bodyParser para analizar el cuerpo JSON
@@ -45,8 +45,8 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("data-user", message);
   });
 
-  socket.on("save-score", (scoreCurrent) => {
-    socket.emit("score-user", scoreCurrent)
+  socket.on("dataScoreRanking", (data) => {
+    socket.broadcast.emit("scoreRanking", data)
   })
 });
 

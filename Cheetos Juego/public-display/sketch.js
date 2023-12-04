@@ -2,7 +2,7 @@
 const DNS = getDNS;
 
 //Import socket to listen or send messages using events.
-const laurl = `http://${window.location.hostname}:5050`;
+const laurl = `http://${window.location.hostname}:5051`;
 let socket = io(laurl, {
   path: "/real-time",
 });
@@ -288,7 +288,7 @@ function draw() {
     if (!registroEnviado) {
       // Envía la información al servidor
       const scoreData = { score: puntaje };
-      const url = `http://${window.location.hostname}:5050/save-score`;
+      const url = `http://localhost:5051/display/`;
 
       // Utilizamos la función fetch para enviar los datos al servidor
       fetch(url, {
@@ -325,7 +325,6 @@ function draw() {
     juegoDetenido = true;
     endsound.play();
     musicaFondo.stop();
-    socket.emit("save-score")
   }
   // Mover el objeto si las teclas están presionadas
   if (movingLeft) {

@@ -2,9 +2,8 @@
 const DNS = getDNS;
 
 // Import socket to listen or send messages using events.
-const laurl = `http://${window.location.hostname}:5050`;
+const laurl = `http://${window.location.hostname}:5051`;
 let socket = io(laurl, { path: "/real-time" });
-
 
 // ========================
 // Obtiene elementos "inputs"
@@ -31,10 +30,3 @@ document.getElementById("llama_Menu3").addEventListener('click', function (e) {
         socket.emit("registro", register);
     }
 });
-
-const scoreFill = document.getElementById('scoreContent')
-// pintar de forma dinamica el puntaje
-socket.on("score-user", (score) => {
-    scoreFill.textContent = score
-    console.log("llega");
-})
