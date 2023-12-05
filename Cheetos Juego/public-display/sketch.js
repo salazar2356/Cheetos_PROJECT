@@ -330,7 +330,7 @@ function draw() {
   tiempoTranscurrido = millis() - tiempoInicio;
 
   //Detener el juego a x milisegundos
-  if (tiempoTranscurrido >= 5000 && !juegoDetenido) {
+  if (tiempoTranscurrido >= 50000 && !juegoDetenido) {
     juegoDetenido = true;
     endsound.play();
     musicaFondo.stop();
