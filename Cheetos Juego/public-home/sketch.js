@@ -1,5 +1,5 @@
 //Escucha el mensaje del server
-const laurl = `${window.location.hostname}`;
+const laurl = `http://${window.location.hostname}:5050`;
 
 let socket = io(laurl, {
   path: "/real-time",
@@ -19,7 +19,7 @@ socket.on('joystick', message => {
 
   if (button === 0) {
     // Direction to DISPLAY SCcREEN
-    window.location.href = 'https://74a7-181-68-150-159.ngrok-free.app/display/';
+    window.location.href = 'http://localhost:5050/display/';
   }
 })
 
@@ -33,7 +33,7 @@ socket.on("data-user", (register) => {
 })
 
 socket.on("scoreRanking", (dataUserScore) => {
-  console.log(dataUserScore);
+  // console.log(dataUserScore);
 
   // Crear nueva fila para la tabla
   const newRow = document.createElement("tr");

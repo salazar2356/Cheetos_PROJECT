@@ -45,7 +45,7 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("data-user", message);
   });
 
-  socket.on("screen-change", () =>{
+  socket.on("screen-change", () => {
     socket.broadcast.emit("changed")
   })
 

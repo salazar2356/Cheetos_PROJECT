@@ -2,7 +2,7 @@
 const DNS = getDNS;
 
 //Import socket to listen or send messages using events.
-const laurl = `${window.location.hostname}`;
+const laurl = `http://${window.location.hostname}:5050`;
 let socket = io(laurl, {
   path: "/real-time",
 });
@@ -198,8 +198,8 @@ socket.on('joystick', message => {
   }
 })
 
-socket.on("changed", () =>{
-  window.location.href = 'https://74a7-181-68-150-159.ngrok-free.app/home/';
+socket.on("changed", () => {
+  window.location.href = 'http://localhost:5050/home/';
 })
 
 
@@ -294,7 +294,7 @@ function draw() {
     if (!registroEnviado) {
       // Envía la información al servidor
       const scoreData = { score: puntaje };
-      const url = `http://localhost:5051/display/`;
+      const url = `http://${window.location.hostname}:5050/save-score`;
 
       // Utilizamos la función fetch para enviar los datos al servidor
       fetch(url, {
@@ -318,7 +318,7 @@ function draw() {
     fill(255);
     textAlign(CENTER, CENTER);
     text(`That's all! Your score: ${puntaje}`, width / 2, height / 1.6);
-    text(`Scan me`,width / 2, 85);
+    text(`Scan me`, width / 2, 85);
     image(qr, width / 2.25, 150)
 
 
