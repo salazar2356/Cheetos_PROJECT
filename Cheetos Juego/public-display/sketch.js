@@ -67,6 +67,9 @@ let posx;
 let posy;
 let button;
 let velocidad = 20;
+// PUNTO MUERTO
+const puntoMuerto = 300;
+const rango = 40; //A partir de 340 y 260 se mueve en x o y
 
 function preload() {
   // Carga las imagenes antes de ejecutar el sketch
@@ -178,25 +181,27 @@ socket.on('joystick', message => {
   const { x, y, button } = message;
   // console.log("recibido: ", message);
 
-  if (x > 500) {
-    posx -= velocidad
+  // Verifica si los valores están fuera del punto muerto
+  if (x > puntoMuerto + rango) {
+    posx -= velocidad;
+  } else if (x < puntoMuerto - rango) {
+    posx += velocidad;
   }
-  if (x < 530) {
-    posx += velocidad
+
+  if (y < puntoMuerto - rango) {
+    posy -= velocidad;
+  } else if (y > puntoMuerto + rango) {
+    posy += velocidad;
   }
-  if (y < 500) {
-    posy -= velocidad
-  }
-  if (y > 500) {
-    posy += velocidad
-  }
+
+  // Resto del código para el botón
   if (button === 0) {
     // Ejecutar la acción de disparar
     console.log("¡Disparo!");
     // Llama a función que ejecuta el disparo
     mousePressed();
   }
-})
+});
 
 socket.on("changed", () => {
   window.location.href = 'http://localhost:5050/home/';

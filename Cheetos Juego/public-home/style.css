@@ -6,7 +6,7 @@ body {
     align-items: center;
     margin: 0;
     padding: 0;
-    background-color: black;
+    background-color: #0F1722;
     height: 100vh;
     color: #000000;
     font-family: 'Cairo', sans-serif;
@@ -23,18 +23,23 @@ body {
     display: flex;
     flex-direction: column;
     position: absolute;
-    left: 730px;
-    top: 160px;
+    left: 904px;
+    top: 15px;
+    background-color:#FEB63D ;
+    padding: 12px;
+    border-radius: 8px;
 }
 
 .title {
     display: flex;
-    justify-content: flex-start;
+    justify-content:center;
     color: white;
 
+
     & h1 {
-        padding: 12px;
+        padding: 6px;
         margin: 0;
+        font-weight: bolder;
     }
 }
 
@@ -46,9 +51,8 @@ body {
 
 .Tabla {
     position: relative;
-    width: 100vh;
-    height: 100%;
     overflow: hidden;
+
 }
 
 .bodytable {
